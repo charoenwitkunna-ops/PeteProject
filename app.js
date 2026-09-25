@@ -153,9 +153,14 @@ function updateNavIndicator() {
     return;
   }
 
+  // Scroll active tab into view horizontally on narrow devices
+  if (navTabs.scrollWidth > navTabs.clientWidth) {
+    activeLink.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }
+
   const tabRect = navTabs.getBoundingClientRect();
   const linkRect = activeLink.getBoundingClientRect();
-  const left = linkRect.left - tabRect.left;
+  const left = (linkRect.left - tabRect.left) + navTabs.scrollLeft;
   const width = linkRect.width;
 
   indicator.style.width = `${width}px`;

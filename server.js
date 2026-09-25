@@ -139,6 +139,22 @@ function bearerToken(request) {
   return header.startsWith("Bearer ") ? header.slice(7) : null;
 }
 
+async function optionalAuth(request, _response, next) {
+  const token = bearerToken(request);
+  if (!token) {
+    request.user = null;
+    return next();
+  }
+
+  try {
+    const { firebaseAuth } = getServices();
+    request.user = await firebaseAuth.verifyIdToken(token);
+  } catch {
+    request.user = null;
+  }
+  return next();
+}
+
 async function requireAuth(request, response, next) {
   const token = bearerToken(request);
 
@@ -219,13 +235,13 @@ app.get("/api/me", requireAuth, (request, response) => {
   });
 });
 
-app.get("/api/items", requireAuth, async (request, response) => {
+app.get("/api/items", optionalAuth, async (request, response) => {
   const requestedStatus = request.query.status;
-  const isAuthority = request.user.role === "AUTHORITY" || request.user.authority === true;
+  const isAuthority = request.user && (request.user.role === "AUTHORITY" || request.user.authority === true);
   const status = isAuthority && ["ACTIVE", "CLAIMED", "ALL"].includes(requestedStatus)
     ? requestedStatus
     : "ACTIVE";
-  const cacheKey = `items:${status}:${isAuthority ? "authority" : "student"}`;
+  const cacheKey = `items:${status}:${isAuthority ? "authority" : "public"}`;
 
   try {
     const cached = readCache(cacheKey);
@@ -237,7 +253,17 @@ app.get("/api/items", requireAuth, async (request, response) => {
     
     // Fetch documents matching status filter, then sort in memory to avoid Firestore composite index requirement
     const snapshot = await query.get();
-    const docs = snapshot.docs.map(document => serializeDocument(document, { includePrivate: isAuthority }));
+    let docs = snapshot.docs.map(document => serializeDocument(document, { includePrivate: isAuthority }));
+
+    // Public/Student view: hide expired items
+    if (!isAuthority) {
+      const now = new Date();
+      docs = docs.filter(item => {
+        if (!item.claimDeadline) return true;
+        return new Date(item.claimDeadline) >= now;
+      });
+    }
+
     docs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
     const items = writeCache(
@@ -252,9 +278,9 @@ app.get("/api/items", requireAuth, async (request, response) => {
   }
 });
 
-app.get("/api/items/:itemId", requireAuth, async (request, response) => {
-  const isAuthority = request.user.role === "AUTHORITY" || request.user.authority === true;
-  const cacheKey = `item:${request.params.itemId}:${isAuthority ? "authority" : "student"}`;
+app.get("/api/items/:itemId", optionalAuth, async (request, response) => {
+  const isAuthority = request.user && (request.user.role === "AUTHORITY" || request.user.authority === true);
+  const cacheKey = `item:${request.params.itemId}:${isAuthority ? "authority" : "public"}`;
 
   try {
     const cached = readCache(cacheKey);

@@ -18,16 +18,32 @@ async function apiRequest(endpoint, options = {}) {
   return body;
 }
 
-export function fetchItems(status = "ACTIVE") {
-  return apiRequest(`/api/items?status=${encodeURIComponent(status)}`);
+export async function fetchItems(status = "ACTIVE") {
+  const token = await auth.currentUser?.getIdToken();
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  const response = await fetch(`/api/items?status=${encodeURIComponent(status)}`, { headers });
+  const body = await response.json().catch(() => []);
+  if (!response.ok) throw new Error(body.error || "Could not load items.");
+  return body;
 }
 
 export function fetchStats() {
   return fetch("/api/stats").then(res => res.json()).catch(() => null);
 }
 
-export function fetchItem(itemId) {
-  return apiRequest(`/api/items/${encodeURIComponent(itemId)}`);
+export async function fetchItem(itemId) {
+  const token = await auth.currentUser?.getIdToken();
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  const response = await fetch(`/api/items/${encodeURIComponent(itemId)}`, { headers });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || "Could not load item.");
+  return body;
 }
 
 export function createItem(item) {
