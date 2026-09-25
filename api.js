@@ -22,6 +22,10 @@ export function fetchItems(status = "ACTIVE") {
   return apiRequest(`/api/items?status=${encodeURIComponent(status)}`);
 }
 
+export function fetchStats() {
+  return fetch("/api/stats").then(res => res.json()).catch(() => null);
+}
+
 export function fetchItem(itemId) {
   return apiRequest(`/api/items/${encodeURIComponent(itemId)}`);
 }

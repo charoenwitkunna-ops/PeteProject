@@ -13,6 +13,7 @@ import {
 } from "./firebase-auth.js";
 import {
   fetchItems,
+  fetchStats,
   createItem,
   fetchLostReports,
   createLostReport,
@@ -1349,9 +1350,34 @@ function initEventHandlers() {
 }
 
 // --- BOOTSTRAP ---
-function init() {
+async function init() {
   initEventHandlers();
   initHeroParallax();
+
+  // Load live statistics from backend if running on web
+  if (window.location.protocol !== "file:") {
+    try {
+      const stats = await fetchStats();
+      if (stats) {
+        const reunitedEl = document.getElementById("statCountReunited");
+        const waitingEl = document.getElementById("statCountWaiting");
+        const avgTimeEl = document.getElementById("statAvgReturnTime");
+
+        if (reunitedEl && typeof stats.reunited === "number") {
+          reunitedEl.dataset.target = stats.reunited;
+        }
+        if (waitingEl && typeof stats.waiting === "number") {
+          waitingEl.dataset.target = stats.waiting;
+        }
+        if (avgTimeEl && stats.avgReturnTime) {
+          avgTimeEl.textContent = stats.avgReturnTime;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load dynamic stats:", e);
+    }
+  }
+
   triggerStatsCounters();
 
   // Quick suggestion chips binding

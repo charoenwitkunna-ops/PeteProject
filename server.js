@@ -440,6 +440,71 @@ app.post("/api/handovers", rateLimiter({ max: 30 }), requireAuth, requireAuthori
   }
 });
 
+app.get("/api/stats", async (_request, response) => {
+  const cacheKey = "stats:summary";
+  try {
+    const cached = readCache(cacheKey);
+    if (cached) return response.json(cached);
+
+    const { firestore } = getServices();
+    const [itemsSnap, handoversSnap] = await Promise.all([
+      firestore.collection("items").get(),
+      firestore.collection("handovers").get()
+    ]);
+
+    let activeCount = 0;
+    let claimedCount = 0;
+    let totalReturnDurationMs = 0;
+    let validDurationCount = 0;
+
+    itemsSnap.forEach(doc => {
+      const data = doc.data();
+      if (data.status === "CLAIMED") {
+        claimedCount++;
+      } else if (data.status === "ACTIVE") {
+        activeCount++;
+      }
+
+      if (data.status === "CLAIMED" && data.createdAt && data.claimedAt) {
+        const createdTime = new Date(data.createdAt).getTime();
+        const claimedTime = new Date(data.claimedAt).getTime();
+        const diffMs = claimedTime - createdTime;
+        if (diffMs > 0 && !isNaN(diffMs)) {
+          totalReturnDurationMs += diffMs;
+          validDurationCount++;
+        }
+      }
+    });
+
+    // Fall back to handovers collection size if items doesn't reflect historical claims
+    const totalReunited = Math.max(claimedCount, handoversSnap.size);
+
+    let avgReturnTimeLabel = "1–2 days";
+    if (validDurationCount > 0) {
+      const avgDays = (totalReturnDurationMs / validDurationCount) / (1000 * 60 * 60 * 24);
+      if (avgDays < 1) {
+        const avgHours = Math.max(1, Math.round((totalReturnDurationMs / validDurationCount) / (1000 * 60 * 60)));
+        avgReturnTimeLabel = `${avgHours} hr${avgHours > 1 ? "s" : ""}`;
+      } else {
+        const roundedDays = Math.round(avgDays);
+        avgReturnTimeLabel = `${roundedDays} day${roundedDays > 1 ? "s" : ""}`;
+      }
+    }
+
+    const stats = {
+      reunited: totalReunited,
+      waiting: activeCount,
+      avgReturnTime: avgReturnTimeLabel
+    };
+
+    writeCache(cacheKey, stats, 60 * 1000); // Cache for 1 min
+    return response.json(stats);
+  } catch (error) {
+    console.error("Could not compute stats:", error);
+    return response.status(500).json({ error: "Could not compute live stats." });
+  }
+});
+
 app.listen(port, () => {
   console.log(`FOUND@ANS server listening on http://localhost:${port}`);
 });
