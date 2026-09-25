@@ -1,6 +1,5 @@
 (() => {
-// Clean database configuration.
-// No mock seed items — all records load from the Firestore database.
+// Static visual assets and fallback constants.
 const GENERIC_FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" width="600" height="375" viewBox="0 0 600 375" fill="#f1e6f3">
     <rect width="600" height="375" fill="#F4EBF6"/>
@@ -11,14 +10,5 @@ const GENERIC_FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(`
   </svg>
 `.trim());
 
-const INITIAL_ITEMS = [];
-
-const AUTHORITY_WHITELIST = [
-  "kru.jane@amnuaysilpa.ac.th",
-  "kru.jane@school.ac.th",
-  "reception@amnuaysilpa.ac.th",
-  "admin@amnuaysilpa.ac.th"
-];
-
-window.FOUND_ANS_DATA = { GENERIC_FALLBACK_IMG, INITIAL_ITEMS, AUTHORITY_WHITELIST };
+window.FOUND_ANS_DATA = { GENERIC_FALLBACK_IMG };
 })();

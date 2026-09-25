@@ -33,6 +33,38 @@ app.use((request, response, next) => {
 
 app.use(express.static(__dirname));
 
+// Simple in-memory sliding-window rate limiter (no external deps)
+const rateLimits = new Map();
+function rateLimiter({ windowMs = 60 * 1000, max = 30, message = "Too many requests, please try again later." } = {}) {
+  return (req, res, next) => {
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
+    const key = `${req.path}:${ip}`;
+    const now = Date.now();
+
+    const record = rateLimits.get(key) || { count: 0, resetTime: now + windowMs };
+    if (now > record.resetTime) {
+      record.count = 0;
+      record.resetTime = now + windowMs;
+    }
+
+    record.count += 1;
+    rateLimits.set(key, record);
+
+    if (record.count > max) {
+      return res.status(429).json({ error: message });
+    }
+    next();
+  };
+}
+
+// Clean up stale rate limit entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, record] of rateLimits.entries()) {
+    if (now > record.resetTime) rateLimits.delete(key);
+  }
+}, 5 * 60 * 1000).unref();
+
 let firestoreInstance = null;
 let firebaseAuthInstance = null;
 
@@ -81,9 +113,7 @@ function writeCache(key, value, ttl) {
 
 function invalidateItem(itemId) {
   for (const key of cache.keys()) {
-    if (key === "items:ACTIVE:authority" || key === "items:ACTIVE:student"
-      || key === "items:ALL:authority" || key === "items:ALL:student"
-      || key.startsWith(`item:${itemId}:`)) {
+    if (key.startsWith("items:") || (itemId && key.startsWith(`item:${itemId}:`))) {
       cache.delete(key);
     }
   }
@@ -244,7 +274,7 @@ app.get("/api/items/:itemId", requireAuth, async (request, response) => {
   }
 });
 
-app.post("/api/items", requireAuth, requireAuthority, async (request, response) => {
+app.post("/api/items", rateLimiter({ max: 20 }), requireAuth, requireAuthority, async (request, response) => {
   const payload = cleanPayload(request.body);
   const itemCode = payload.itemCode || `LF-${new Date().getFullYear()}-${crypto.randomInt(100, 999)}`;
 
@@ -286,7 +316,7 @@ app.post("/api/items", requireAuth, requireAuthority, async (request, response) 
   }
 });
 
-app.delete("/api/items/:itemId", requireAuth, requireAuthority, async (request, response) => {
+app.delete("/api/items/:itemId", rateLimiter({ max: 30 }), requireAuth, requireAuthority, async (request, response) => {
   const { itemId } = request.params;
   try {
     const { firestore } = getServices();
@@ -306,7 +336,7 @@ app.delete("/api/items/:itemId", requireAuth, requireAuthority, async (request, 
   }
 });
 
-app.post("/api/lost-reports", requireAuth, async (request, response) => {
+app.post("/api/lost-reports", rateLimiter({ max: 15 }), requireAuth, async (request, response) => {
   const payload = cleanPayload(request.body);
   const report = {
     ...payload,
@@ -356,7 +386,7 @@ app.patch("/api/lost-reports/:reportId", requireAuth, requireAuthority, async (r
   }
 });
 
-app.post("/api/handovers", requireAuth, requireAuthority, async (request, response) => {
+app.post("/api/handovers", rateLimiter({ max: 30 }), requireAuth, requireAuthority, async (request, response) => {
   const { itemId, studentName, studentId, verificationMethod, verificationNotes } = request.body;
 
   if (!itemId || !studentName || !studentId) {

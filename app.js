@@ -26,6 +26,16 @@ import {
 const { GENERIC_FALLBACK_IMG } = window.FOUND_ANS_DATA;
 const state = window.FOUND_ANS_STATE;
 
+function escapeHtml(text) {
+  if (text == null) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function getItemImageData(item) {
   return item.image?.data || item.image?.url || item.imageUrl || GENERIC_FALLBACK_IMG;
 }
@@ -490,9 +500,9 @@ function createItemCard(item, role) {
 
   card.innerHTML = `
     <div class="card-media">
-      <img src="${getItemImageData(item)}" alt="${item.title}" loading="lazy" />
+      <img src="${getItemImageData(item)}" alt="${escapeHtml(item.title)}" loading="lazy" />
       <div class="card-media-badges">
-        <span class="category-tag">${item.category.replace('_', ' ')}</span>
+        <span class="category-tag">${escapeHtml(item.category.replace('_', ' '))}</span>
         <span class="media-deadline-pill ${isUrgent ? 'urgent' : ''}">
           <i class="fa-regular fa-clock"></i> ${diffDays > 0 ? `${diffDays}d left` : 'Expired'}
         </span>
@@ -508,24 +518,24 @@ function createItemCard(item, role) {
     
     <div class="card-body">
       <div class="card-meta-top">
-        <span class="item-code-badge">${item.itemCode}</span>
+        <span class="item-code-badge">${escapeHtml(item.itemCode)}</span>
       </div>
 
-      <h3 class="item-title">${item.title}</h3>
+      <h3 class="item-title">${escapeHtml(item.title)}</h3>
 
       <ul class="item-info-list">
         <li>
           <i class="fa-regular fa-calendar"></i>
-          <span>Found: <strong>${item.foundDate}</strong></span>
+          <span>Found: <strong>${escapeHtml(item.foundDate)}</strong></span>
         </li>
         <li>
           <i class="fa-solid fa-location-dot"></i>
-          <span>Location: <strong>${item.foundLocation}</strong></span>
+          <span>Location: <strong>${escapeHtml(item.foundLocation)}</strong></span>
         </li>
         ${item.ownerName ? `
           <li>
             <i class="fa-solid fa-tag"></i>
-            <span>Owner name: <strong class="masked-owner">${item.ownerName}</strong></span>
+            <span>Owner name: <strong class="masked-owner">${escapeHtml(item.ownerName)}</strong></span>
           </li>
         ` : ''}
 
@@ -601,41 +611,41 @@ function openDetailModal(item, role) {
       <div class="clean-detail-grid">
         <!-- Media -->
         <div class="clean-img-box">
-          <img src="${getItemImageData(item)}" alt="${item.title}" onerror="this.src='${GENERIC_FALLBACK_IMG}'" />
+          <img src="${getItemImageData(item)}" alt="${escapeHtml(item.title)}" onerror="this.src='${GENERIC_FALLBACK_IMG}'" />
         </div>
 
         <!-- Details -->
         <div class="clean-content-stack">
           <!-- Description -->
-          <p class="clean-desc-text">${item.publicDescription}</p>
+          <p class="clean-desc-text">${escapeHtml(item.publicDescription)}</p>
 
           <!-- Structured Info List (No pills) -->
           <div class="clean-info-list">
             <div class="clean-info-row">
               <span class="clean-info-icon" aria-hidden="true"><i class="fa-regular fa-calendar"></i></span>
               <span class="clean-info-label">Found:</span>
-              <span class="clean-info-val">${item.foundDate} &mdash; ${item.foundLocation}</span>
+              <span class="clean-info-val">${escapeHtml(item.foundDate)} &mdash; ${escapeHtml(item.foundLocation)}</span>
             </div>
 
             <div class="clean-info-row">
               <span class="clean-info-icon" aria-hidden="true"><i class="fa-regular fa-clock"></i></span>
               <span class="clean-info-label">Deadline:</span>
               <span class="clean-info-val ${isUrgent ? 'text-coral' : ''}">
-                ${item.claimDeadline} <span class="clean-info-sub">(${diffDays > 0 ? `${diffDays} days remaining` : 'Expired'})</span>
+                ${escapeHtml(item.claimDeadline)} <span class="clean-info-sub">(${diffDays > 0 ? `${diffDays} days remaining` : 'Expired'})</span>
               </span>
             </div>
 
             <div class="clean-info-row">
               <span class="clean-info-icon" aria-hidden="true"><i class="fa-solid fa-tag"></i></span>
               <span class="clean-info-label">Category:</span>
-              <span class="clean-info-val">${item.category.replace('_', ' ')} ${item.isHighValue ? '&bull; High-Value' : ''}</span>
+              <span class="clean-info-val">${escapeHtml(item.category.replace('_', ' '))} ${item.isHighValue ? '&bull; High-Value' : ''}</span>
             </div>
 
             <div class="clean-info-row">
               <span class="clean-info-icon" aria-hidden="true"><i class="fa-regular fa-id-card"></i></span>
               <span class="clean-info-label">Owner name:</span>
               <span class="clean-info-val ${item.ownerName ? 'clean-name-highlight' : ''}">
-                ${item.ownerName || "None"}
+                ${escapeHtml(item.ownerName || "None")}
               </span>
             </div>
           </div>
@@ -646,7 +656,7 @@ function openDetailModal(item, role) {
       ${role === "AUTHORITY" ? `
         <div class="clean-vault-block">
           <div class="clean-vault-title">Hidden Notes</div>
-          <p class="clean-vault-body">${item.privateNotes || 'No verification notes recorded.'}</p>
+          <p class="clean-vault-body">${escapeHtml(item.privateNotes || 'No verification notes recorded.')}</p>
         </div>
       ` : ''}
 
@@ -946,7 +956,16 @@ function initEventHandlers() {
     });
   }
 
-  // Modal open/close bindings
+  // Keyboard accessibility: Escape to close modals
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      [addItemModal, claimModal, detailModal, reportLostModal].forEach(modal => {
+        if (modal && modal.classList.contains("active")) {
+          modal.classList.remove("active");
+        }
+      });
+    }
+  });
   if (btnOpenAddModal) {
     btnOpenAddModal.addEventListener("click", openAddModal);
   }
