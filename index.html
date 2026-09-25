@@ -466,8 +466,13 @@
             <input type="file" id="itemCameraFile" accept="image/*" capture="environment" style="display:none;" />
 
             <div id="dropzonePrompt" class="dropzone-prompt">
-              <i class="fa-solid fa-cloud-arrow-up text-purple"></i>
-              <p>Click to upload image file or snap a photo</p>
+              <div class="dropzone-icon-circle">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <div class="dropzone-text-group">
+                <p class="dropzone-main-text">Upload item photo or snap with camera</p>
+                <span class="exif-note"><i class="fa-solid fa-shield-halved"></i> EXIF stripped automatically</span>
+              </div>
               <div class="photo-actions-row">
                 <button type="button" class="btn-photo-action" id="btnTriggerCamera">
                   <i class="fa-solid fa-camera"></i> Take Picture
@@ -476,7 +481,6 @@
                   <i class="fa-regular fa-image"></i> Browse Files
                 </button>
               </div>
-              <span class="exif-note">EXIF metadata stripped automatically for student safety</span>
             </div>
             <div id="dropzonePreview" class="dropzone-preview" style="display:none;">
               <img id="previewImg" src="" alt="Item Preview" />

@@ -2409,59 +2409,105 @@ body {
 
 /* Photo Dropzone */
 .photo-dropzone {
-  border: 2px dashed var(--border-strong);
+  border: 1.5px dashed #cbd5e1;
   border-radius: var(--radius-sm);
-  padding: 1.75rem 1rem;
+  padding: 1.25rem 1rem;
   text-align: center;
-  cursor: pointer;
-  background: var(--canvas-soft);
-  transition: var(--transition);
+  background: #f8fafc;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  position: relative;
 }
 
 .photo-dropzone:hover {
   border-color: var(--ans-purple);
-  background: var(--ans-purple-tint);
+  background: #faf5ff;
 }
 
-.dropzone-prompt i {
-  font-size: 2.25rem;
+.dropzone-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropzone-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--ans-purple);
-  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.photo-dropzone:hover .dropzone-icon-circle {
+  transform: translateY(-2px);
+  background: #ede9fe;
+  color: #6b21a8;
+}
+
+.dropzone-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dropzone-main-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
 }
 
 .photo-actions-row {
   display: flex;
   justify-content: center;
-  gap: 0.75rem;
-  margin: 0.75rem 0 0.5rem;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
 }
 
 .btn-photo-action {
   background: #ffffff;
-  border: 1px solid var(--border-strong);
+  border: 1px solid #cbd5e1;
   border-radius: var(--radius-pill);
-  padding: 0.45rem 1rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--ans-purple);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-photo-action i {
+  color: var(--ans-purple);
 }
 
 .btn-photo-action:hover {
   background: var(--ans-purple);
-  color: white;
+  color: #ffffff;
   border-color: var(--ans-purple);
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(84, 25, 93, 0.2);
+}
+
+.btn-photo-action:hover i {
+  color: #ffffff;
 }
 
 .exif-note {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: #64748b;
+  margin: 0;
 }
 
 .dropzone-preview {
