@@ -180,9 +180,7 @@ function navigateTo(viewId) {
 
   updateNavIndicator();
 
-  if (viewId === "viewItems") {
-    renderItemsList();
-  } else if (viewId === "viewLostReports") {
+  if (viewId === "viewLostReports") {
     renderLostReports();
   } else if (viewId === "viewDigestPreview") {
     renderDigestEmail();
