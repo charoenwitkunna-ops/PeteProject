@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FOUND@ANS — Secondary Lost &amp; Found</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Google Fonts: Editorial Serif (Fraunces & Playfair) + Modern Sans (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,600;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Navigation Bar (FOUND@ANS Theme) -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand" id="brandHomeBtn">
+        <div class="logo-shield">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span class="logo-sparkle">✦</span>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">FOUND<span class="at-symbol">@</span>ANS</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-tabs" id="navTabs">
+        <!-- Injected dynamically based on role -->
+      </nav>
+
+      <!-- Right Action & User Profile -->
+      <div class="nav-right" id="navRightSection">
+        <!-- Logged out or Injected via JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-content">
+    
+    <!-- 1. LOGIN SCREEN (First Page: Classifies Student vs Authority) -->
+    <section id="viewLogin" class="view-panel active">
+      <div class="hero-split-container">
+        
+        <!-- Left Hero Pitch -->
+        <div class="hero-left">
+          <h1 class="hero-title">
+            Lost something?<br>
+            <span class="italic-serif text-coral">Let's bring it home.</span>
+          </h1>
+          <p class="hero-desc">
+            <strong>FOUND@ANS</strong> is the secondary school's friendly lost-and-found portal. Search items that have been handed in to reception, or verify your identity with authorities to reclaim your belongings.
+          </p>
+
+          <!-- Login Form embedded seamlessly in the hero -->
+          <div class="login-card-integrated">
+            <div class="login-card-header">
+              <span class="login-badge" id="loginCardBadge"><i class="fa-solid fa-envelope"></i> School Account Login</span>
+              <h3 id="loginCardTitle">Sign in with School Email</h3>
+              <p id="loginCardSubtitle">Sign in securely with your school account. Access is controlled by your account role.</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+              <div class="form-group">
+                <label for="loginEmail">School Email Address</label>
+                <div class="input-with-icon">
+                  <i class="fa-regular fa-envelope"></i>
+                  <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="you@amnuaysilpa.ac.th"
+                    autocomplete="email"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-lock"></i>
+                  <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    minlength="6"
+                    required
+                  />
+                </div>
+              </div>
+
+              <p class="form-error" id="loginError" role="alert" hidden></p>
+
+              <button type="submit" class="btn btn-purple btn-block" id="loginSubmitButton">
+                <span id="loginSubmitText">Sign In</span> <i class="fa-solid fa-arrow-right"></i>
+              </button>
+
+              <button type="button" class="auth-mode-toggle" id="authModeToggle">
+                Need an account? Create one
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Hero Graphic (Backpack with Tag + Soft Organic Glow) -->
+        <div class="hero-right">
+          <div class="hero-graphic-card">
+            <div class="soft-backdrop-circle"></div>
+            
+            <div class="graphic-badge-tag">
+              <span class="tag-label">FOUND</span>
+              <span class="tag-sub">at ANS</span>
+            </div>
+
+            <!-- Stylized Vector Backpack SVG with physics-based floating -->
+            <div class="backpack-art" id="heroBackpackArt">
+              <div class="ambient-glow-disc"></div>
+              <svg viewBox="0 0 240 280" class="backpack-svg" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer Glow & Handle -->
+                <path d="M90 50 C90 28 150 28 150 50" stroke="#54195D" stroke-width="16" fill="none" stroke-linecap="round" />
+                <!-- Backpack Main Body -->
+                <rect x="35" y="55" width="170" height="210" rx="65" fill="#54195D" class="svg-shadow" />
+                <!-- Top Flap Accent -->
+                <rect x="75" y="80" width="90" height="20" rx="10" fill="#FF708F" />
+                <!-- Front Pocket -->
+                <rect x="55" y="145" width="130" height="95" rx="30" fill="#42104B" stroke="#7A2885" stroke-width="4" />
+                <rect x="65" y="155" width="110" height="75" rx="20" fill="none" stroke="#FF708F" stroke-width="3" stroke-dasharray="6,4" />
+                <!-- Center Sparkle / Crest with Pulse -->
+                <path d="M120 115 L124 127 L136 131 L124 135 L120 147 L116 135 L104 131 L116 127 Z" fill="#FFE082" class="svg-crest-pulse" />
+              </svg>
+            </div>
+
+            <!-- Floating Sparkle Accents with Staggered Kinetic Shimmer -->
+            <span class="float-star star-1">✦</span>
+            <span class="float-star star-2">✦</span>
+            <span class="float-star star-3">★</span>
+            <span class="float-star star-4">✧</span>
+            <span class="float-star star-5">✦</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Purple Impact Stats Ribbon -->
+      <div class="stats-ribbon">
+        <div class="stats-container">
+          <div class="stat-col">
+            <div class="stat-num" id="statCountReunited" data-target="128">0</div>
+            <div class="stat-label">items reunited</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-col">
+            <div class="stat-num" id="statCountWaiting" data-target="24">0</div>
+            <div class="stat-label">items waiting</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-col">
+            <div class="stat-num">1–2 days</div>
+            <div class="stat-label">average return time</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ITEMS LIST & SEARCH VIEW (Student & Authority Common View) -->
+    <section id="viewItems" class="view-panel">
+      
+      <!-- Search & Filter Console -->
+      <div class="search-console-card">
+        
+        <!-- Big Hero-style Search Bar with Coral Button -->
+        <div class="main-search-row">
+          <div class="search-input-pill">
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search for a water bottle, jacket, calculator, keys, AirPods..." 
+            />
+            <button class="clear-search" id="btnClearSearch" title="Clear search">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <button class="btn btn-coral btn-search-trigger" id="btnSearchTrigger">Search</button>
+        </div>
+
+        <!-- Quick Trending Suggestions -->
+        <div class="quick-suggest-row">
+          <span class="suggest-label"><i class="fa-solid fa-bolt text-coral"></i> Quick search:</span>
+          <button type="button" class="chip-suggest" data-query="Hydro Flask">🍶 Hydro Flask</button>
+          <button type="button" class="chip-suggest" data-query="AirPods">🎧 AirPods</button>
+          <button type="button" class="chip-suggest" data-query="Calculator">📐 Casio Calculator</button>
+          <button type="button" class="chip-suggest" data-query="Blazer">🧥 Blazer</button>
+          <button type="button" class="chip-suggest" data-query="Keys">🔑 Keychains</button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-controls-row">
+          <div class="category-pills-scroll-track">
+            <div class="category-pills" id="categoryPills">
+              <button class="cat-pill active" data-cat="ALL">All Items</button>
+              <button class="cat-pill" data-cat="ELECTRONICS">Electronics</button>
+              <button class="cat-pill" data-cat="BOTTLES">Water Bottles</button>
+              <button class="cat-pill" data-cat="CLOTHING">Uniform &amp; Jackets</button>
+              <button class="cat-pill" data-cat="STATIONERY">Stationery</button>
+              <button class="cat-pill" data-cat="BAGS_WALLETS">Bags &amp; Wallets</button>
+              <button class="cat-pill" data-cat="OTHER">Other</button>
+            </div>
+          </div>
+
+          <div class="secondary-toggles">
+            <div class="sort-wrap">
+              <label for="sortSelect" class="sort-label" aria-label="Sort items" title="Sort items"><i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i></label>
+              <select id="sortSelect" class="status-dropdown">
+                <option value="NEWEST">Newest Found</option>
+                <option value="DEADLINE">Expiring Soonest</option>
+                <option value="TITLE">Title (A-Z)</option>
+              </select>
+            </div>
+
+            <label class="toggle-wrap">
+              <input type="checkbox" id="toggleHighValue" />
+              <span class="toggle-check"></span>
+              <span class="toggle-txt"><i class="fa-solid fa-star text-gold"></i> High-Value Only</span>
+            </label>
+
+            <div id="authorityStatusWrap" style="display: none;">
+              <select id="authorityStatusSelect" class="status-dropdown">
+                <option value="ACTIVE">Status: Waiting (Active)</option>
+                <option value="CLAIMED">Status: Claimed &amp; Returned</option>
+                <option value="ALL">Status: All Records</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Items Grid -->
+      <div class="items-grid" id="itemsGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state-card" id="emptyState" style="display: none;">
+        <div class="empty-icon"><i class="fa-solid fa-box-open"></i></div>
+        <h3>No matching items found</h3>
+        <p>Try searching different keywords (e.g. "blue bottle" or "calculator") or check the Monday digest email.</p>
+        <button class="btn btn-outline-purple" id="btnEmptyReset" style="margin-top: 1rem;">
+          <i class="fa-solid fa-arrow-rotate-left"></i> Reset Filters
+        </button>
+      </div>
+
+    </section>
+
+    <!-- 3. HOW IT WORKS / STUDENT INSTRUCTIONS VIEW -->
+    <section id="viewInstructions" class="view-panel">
+      <div class="page-container-narrow">
+        <div class="editorial-card">
+          
+          <div class="editorial-header">
+            <span class="eyebrow-tag">STUDENT GUIDE &bull; RECEPTION SERVICE</span>
+            <h1 class="fraunces-title">How to claim your lost item</h1>
+            <p class="lead-text">
+              Secondary items are safely stored at the <strong>Secondary Reception Desk (Building A, 1st Floor)</strong>. Here is the step-by-step handover procedure:
+            </p>
+          </div>
+
+          <div class="numbered-timeline">
+            
+            <div class="timeline-item">
+              <div class="timeline-num">1</div>
+              <div class="timeline-content">
+                <h3>Find your item on FOUND@ANS</h3>
+                <p>Browse the items list or type keywords into the AI search bar. Check the photos, found date, and location.</p>
+                <div class="tip-callout">
+                  <i class="fa-solid fa-bookmark"></i> Remember or screenshot the <strong>Item ID (e.g. LF-2026-002)</strong>.
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-num">2</div>
+              <div class="timeline-content">
+                <h3>Visit Secondary Reception</h3>
+                <p>Go to the Secondary Reception Desk in Main Building A between <strong>07:30 and 16:30</strong> (Monday – Friday).</p>
+                <p>Tell the duty receptionist or Kru Jane the Item ID you found on the website.</p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-num">3</div>
+              <div class="timeline-content">
+                <h3>Verify your ownership</h3>
+                <p>To prevent fraudulent claims, authorities will ask you to verify the item is truly yours using one of these methods:</p>
+                <div class="verify-methods-grid">
+                  <div class="method-card">
+                    <i class="fa-solid fa-id-card text-purple"></i>
+                    <strong>Student ID Card</strong>
+                    <span>Matches the name tag written on the item.</span>
+                  </div>
+                  <div class="method-card">
+                    <i class="fa-solid fa-mobile-screen-button text-purple"></i>
+                    <strong>Device Unlock</strong>
+                    <span>Unlocking your phone or tablet screen in person.</span>
+                  </div>
+                  <div class="method-card">
+                    <i class="fa-solid fa-key text-purple"></i>
+                    <strong>Secret Detail</strong>
+                    <span>Describing unphotographed charms, stickers, or contents.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-num">4</div>
+              <div class="timeline-content">
+                <h3>Item released &amp; archived</h3>
+                <p>The authority signs off the digital log, crosses off the reception paper sheet, and hands your item back to you!</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="deadline-warning-card">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <div>
+              <strong>Claim Deadline Policy:</strong>
+              <p>Items are stored for 30–45 days. High-value items remain in safe custody; non-sensitive uniform and bottles are donated to charity if unclaimed after the deadline.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTHORITY LOST-ITEM REPORT INBOX -->
+    <section id="viewLostReports" class="view-panel">
+      <div class="page-container-narrow lost-reports-page">
+        <header class="reports-heading">
+          <div>
+            <h1 class="fraunces-title">Student lost-item reports</h1>
+            <p class="lead-text">Review missing-item reports and compare them with property in reception custody.</p>
+          </div>
+          <div class="reports-count" id="lostReportsCount">0 open</div>
+        </header>
+        <div class="lost-reports-list" id="lostReportsList"></div>
+        <div class="reports-empty" id="lostReportsEmpty">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <h2>No reports to review</h2>
+          <p>Student reports will appear here when submitted.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. AUTHORITY PROTOCOL & SOP VIEW -->
+    <section id="viewAuthorityProtocol" class="view-panel">
+      <div class="page-container-narrow">
+        <div class="editorial-card">
+          
+          <div class="editorial-header">
+            <span class="eyebrow-tag authority-tag"><i class="fa-solid fa-shield"></i> AUTHORITY PROTOCOL &bull; KRU JANE &amp; RECEPTION</span>
+            <h1 class="fraunces-title">Standard Operating Procedure (SOP)</h1>
+            <p class="lead-text">Official protocol for logging, safeguarding, and releasing lost property at Secondary Reception.</p>
+          </div>
+
+          <div class="sop-grid">
+            
+            <div class="sop-card">
+              <div class="sop-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+              <h3>1. Physical Sheet Intake</h3>
+              <p>When someone hands in an item:</p>
+              <ul>
+                <li>Have the finder fill the paper clipboard log (Date, Room, Finder Name).</li>
+                <li>Record the <strong>Sheet Ref No.</strong> (e.g. <code>Sheet #12 Row 4</code>).</li>
+                <li>Inspect for student names or student card numbers.</li>
+              </ul>
+            </div>
+
+            <div class="sop-card">
+              <div class="sop-icon"><i class="fa-solid fa-camera"></i></div>
+              <h3>2. Digital Registration &amp; Privacy</h3>
+              <ul>
+                <li>Click <strong>"Add Found Item"</strong> to upload a clear photo.</li>
+                <li>Write detailed <strong>Public Description</strong> for students.</li>
+                <li>Fill <strong>Private Verification Notes</strong> (e.g. lockscreen wallpaper, 50 baht inside, chipped corner). <em>This is completely hidden from students!</em></li>
+                <li>Toggle <strong>High-Value</strong> for phones, laptops, wallets, jewellery.</li>
+              </ul>
+            </div>
+
+            <div class="sop-card">
+              <div class="sop-icon"><i class="fa-solid fa-handshake"></i></div>
+              <h3>3. Handover Verification</h3>
+              <ul>
+                <li>Verify student ID card or have the student unlock the phone screen.</li>
+                <li>Click <strong>"Claim"</strong> on the portal to record the student name, ID, and verification notes.</li>
+                <li>Item is immediately archived off active student search.</li>
+              </ul>
+            </div>
+
+            <div class="sop-card">
+              <div class="sop-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+              <h3>4. Monday Email Digest</h3>
+              <p>Every Monday morning at 07:00, an automated bulletin is broadcast to all secondary students &amp; staff featuring high-value and recently turned-in items.</p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. MONDAY EMAIL DIGEST PREVIEW -->
+    <section id="viewDigestPreview" class="view-panel">
+      <div class="page-container-narrow">
+        <div class="digest-control-bar">
+          <div>
+            <h2 class="fraunces-subtitle">Monday Morning Email Digest</h2>
+            <p class="text-muted">Simulated preview of the weekly automated email broadcast to secondary students &amp; staff.</p>
+          </div>
+          <button class="btn btn-purple" id="btnSimulateSend">
+            <i class="fa-solid fa-paper-plane"></i> Send Test Broadcast
+          </button>
+        </div>
+
+        <!-- Email Mockup Window -->
+        <div class="email-mockup-window">
+          <div class="email-top-meta">
+            <div><strong>From:</strong> Secondary Reception &lt;reception@amnuaysilpa.ac.th&gt;</div>
+            <div><strong>To:</strong> secondary-all@amnuaysilpa.ac.th</div>
+            <div><strong>Subject:</strong> 🔔 Weekly Lost &amp; Found Bulletin &bull; FOUND@ANS Secondary Reception</div>
+          </div>
+          <div class="email-body" id="digestEmailBody">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ADD FOUND ITEM (AUTHORITIES ONLY) -->
+  <div class="modal-overlay" id="addItemModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-header-text">
+          <span class="eyebrow-tag">RECEPTION INTAKE</span>
+          <h2>Log Found Item to Custody</h2>
+        </div>
+        <button class="modal-close" id="btnCloseAddModal">&times;</button>
+      </div>
+
+      <form id="addItemForm" class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="itemTitle">Item Title / Description *</label>
+            <input type="text" id="itemTitle" placeholder="e.g. Navy Blue Hydro Flask with Stickers" required />
+          </div>
+          <div class="form-group flex-1">
+            <label for="itemCategory">Category *</label>
+            <select id="itemCategory" required>
+              <option value="ELECTRONICS">Electronics</option>
+              <option value="BOTTLES">Water Bottles</option>
+              <option value="CLOTHING">Uniform &amp; Jackets</option>
+              <option value="STATIONERY">Stationery</option>
+              <option value="BAGS_WALLETS">Bags &amp; Wallets</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Photo Upload Zone -->
+        <div class="form-group">
+          <label>Item Photo *</label>
+          <div class="photo-dropzone" id="photoDropzone">
+            <input type="file" id="itemPhotoFile" accept="image/*" style="display:none;" />
+            <div id="dropzonePrompt" class="dropzone-prompt">
+              <i class="fa-solid fa-cloud-arrow-up text-purple"></i>
+              <p>Click to capture photo or upload image file</p>
+              <span>EXIF metadata stripped automatically for student safety</span>
+            </div>
+            <div id="dropzonePreview" class="dropzone-preview" style="display:none;">
+              <img id="previewImg" src="" alt="Item Preview" />
+              <button type="button" class="btn-clear-photo" id="btnClearPhoto"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+          <input type="hidden" id="photoDataUrl" />
+        </div>
+
+        <div class="form-row align-items-end">
+          <div class="form-group flex-1">
+            <label for="itemFoundDate">Date Found *</label>
+            <input type="date" id="itemFoundDate" required />
+          </div>
+          <div class="form-group flex-1">
+            <label for="itemClaimDeadline">Claim Deadline *</label>
+            <input type="date" id="itemClaimDeadline" required />
+          </div>
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="toggle-wrap" style="height: 48px;">
+              <input type="checkbox" id="itemIsHighValue" />
+              <span class="toggle-check"></span>
+              <span class="toggle-txt"><i class="fa-solid fa-star text-gold"></i> <strong>High-Value</strong></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="itemLocation">Location Found *</label>
+            <input type="text" id="itemLocation" placeholder="e.g. Secondary Cafeteria Table 4" required />
+          </div>
+          <div class="form-group flex-1">
+            <label for="itemStorageBin">Physical Storage Bin / Shelf</label>
+            <input type="text" id="itemStorageBin" placeholder="e.g. Bin B-02 (Floor 1)" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="itemSheetRef">Reception Sheet Ref No.</label>
+            <input type="text" id="itemSheetRef" placeholder="e.g. Sheet #12 Row 3" />
+          </div>
+          <div class="form-group flex-1">
+            <label for="itemOwnerWritten">Owner name (if written on item)</label>
+            <input type="text" id="itemOwnerWritten" placeholder="e.g. Somchai Prasert — leave blank if none" />
+            <small class="helper-note"><i class="fa-solid fa-shield-halved"></i> Students only see whether a name label is present. Keep ownership clues in private notes.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="itemPublicDesc">Public Description (Visible to all students) *</label>
+          <textarea id="itemPublicDesc" rows="2" placeholder="Describe color, size, stickers, and brand details for student AI search..." required></textarea>
+        </div>
+
+        <div class="form-group private-box">
+          <label for="itemPrivateNotes"><i class="fa-solid fa-lock"></i> Private Verification Notes (Authorities Only)</label>
+          <textarea id="itemPrivateNotes" rows="2" placeholder="Secret proof points (e.g. 'lockscreen shows cat photo', '20 baht inside', 'chipped right corner'). Students cannot see this!"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelAdd">Cancel</button>
+          <button type="submit" class="btn btn-purple"><i class="fa-solid fa-check"></i> Save Found Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VERIFY CLAIM (AUTHORITY HANDOVER) -->
+  <div class="modal-overlay" id="claimModal">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-label="Handover verification">
+      <div class="modal-header claim-modal-header">
+      </div>
+
+      <form id="claimForm" class="modal-body">
+        <input type="hidden" id="claimItemId" />
+
+        <div class="claim-item-summary-card" id="claimItemSummary">
+          <!-- Injected via JS -->
+        </div>
+
+        <div class="form-group">
+          <label for="claimStudentName">Student Full Name *</label>
+          <input type="text" id="claimStudentName" placeholder="e.g. Somchai Prasert" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="claimStudentId">Student ID Number *</label>
+            <input type="text" id="claimStudentId" placeholder="e.g. 10425" required />
+          </div>
+          <div class="form-group flex-1">
+            <label for="claimMethod">Verification Method *</label>
+            <select id="claimMethod" required>
+              <option value="STUDENT_ID">Student ID Card matched written name</option>
+              <option value="DEVICE_UNLOCK">Device Passcode / Face ID unlocked in front of staff</option>
+              <option value="SECRET_FEATURE">Student described unphotographed secret detail</option>
+              <option value="STAFF_CONFIRMED">Staff / Teacher recognized student</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="claimNotes">Handover Sign-off Notes *</label>
+          <input type="text" id="claimNotes" placeholder="e.g. Verified student ID 10425, unlocked iPhone in front of Kru Jane" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelClaim">Cancel</button>
+          <button type="submit" class="btn btn-success"><i class="fa-solid fa-box-archive"></i> Complete Handover &amp; Archive</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ITEM DETAIL LIGHTBOX (STUDENT & AUTHORITY) -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-header-text">
+          <span class="eyebrow-tag" id="detailItemRefCode">ITEM REF</span>
+          <h2 id="detailItemTitle">Item Details</h2>
+        </div>
+        <button class="modal-close" id="btnCloseDetailModal">&times;</button>
+      </div>
+      <div class="modal-body detail-modal-body" id="detailItemBody">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REPORT LOST ITEM (STUDENT SELF-SERVICE) -->
+  <div class="modal-overlay" id="reportLostModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-header-text">
+          <span class="eyebrow-tag">STUDENT REPORT &bull; RECEPTION DESK</span>
+          <h2>Report a Lost Item</h2>
+        </div>
+        <button class="modal-close" id="btnCloseReportLostModal">&times;</button>
+      </div>
+
+      <form id="reportLostForm" class="modal-body">
+        <p class="report-storage-note"><i class="fa-solid fa-circle-check"></i> Submitting under your verified school account.</p>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="reportLostStudentEmail">Student Email</label>
+            <input type="email" id="reportLostStudentEmail" readonly style="background: var(--bg-canvas-subtle); color: var(--text-muted); cursor: not-allowed;" />
+          </div>
+          <div class="form-group flex-1">
+            <label for="reportLostStudentName">Your Name / Nickname *</label>
+            <input type="text" id="reportLostStudentName" placeholder="e.g. Pete Year 10" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reportLostTitle">What did you lose? *</label>
+          <input type="text" id="reportLostTitle" placeholder="e.g. Blue Stanley Quencher tumbler, Casio calculator" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="reportLostCategory">Category *</label>
+            <select id="reportLostCategory" required>
+              <option value="BOTTLES">Water Bottle / Flask</option>
+              <option value="ELECTRONICS">Electronics (AirPods, Phone, Laptop)</option>
+              <option value="CLOTHING">School Blazer / PE Uniform</option>
+              <option value="STATIONERY">Stationery / Calculator</option>
+              <option value="BAGS_WALLETS">Bags / Wallets / Pouches</option>
+              <option value="OTHER">Other / Keys</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="reportLostDate">Date Lost *</label>
+            <input type="date" id="reportLostDate" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reportLostLocation">Last Seen Location *</label>
+          <input type="text" id="reportLostLocation" placeholder="e.g. Science Lab 204 or Cafeteria Booths" required />
+        </div>
+
+        <div class="form-group">
+          <label for="reportLostSecretDetail">Distinctive / Identifying Details (Stickers, Engravings, Scratches)</label>
+          <textarea id="reportLostSecretDetail" rows="3" placeholder="Describe any stickers, charm keyrings, dents, or initials written on the label that will prove it is yours."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelReportLost">Cancel</button>
+          <button type="submit" class="btn btn-purple"><i class="fa-solid fa-paper-plane"></i> Submit Missing Notice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification System (Motion Feedback) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="data.js"></script>
+  <script src="state.js"></script>
+  <script src="photo.js"></script>
+  <script src="search.js"></script>
+  <script src="ui-effects.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

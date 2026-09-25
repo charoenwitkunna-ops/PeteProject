@@ -1,0 +1,16 @@
+{
+  "name": "found-ans",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "set-authority": "node scripts/set-authority.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.4.0"
+  }
+}
