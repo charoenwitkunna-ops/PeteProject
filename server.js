@@ -175,11 +175,11 @@ const MAX_ITEM_IMAGE_DATA_CHARS = 600 * 1024;
 function normalizeImage(image) {
   const data = image?.data;
   const contentType = image?.contentType;
-  const isWebpDataUrl = typeof data === "string"
-    && /^data:image\/webp;base64,[a-z0-9+/=]+$/i.test(data);
+  const isDataUrl = typeof data === "string"
+    && /^data:image\/(webp|jpeg|jpg|png);base64,[a-z0-9+/=]+$/i.test(data);
 
-  if (!isWebpDataUrl) {
-    const error = new Error("Item photo must be a WebP data URL.");
+  if (!isDataUrl) {
+    const error = new Error("Item photo must be a valid image data URL (WebP or JPEG).");
     error.statusCode = 400;
     throw error;
   }
@@ -194,10 +194,12 @@ function normalizeImage(image) {
     throw error;
   }
 
+  const detectedMime = data.startsWith("data:image/webp") ? "image/webp" : "image/jpeg";
+
   return {
     kind: "embedded",
     data,
-    contentType: contentType === "image/webp" ? contentType : "image/webp",
+    contentType: contentType || detectedMime,
     byteLength
   };
 }

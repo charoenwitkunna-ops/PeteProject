@@ -1,14 +1,14 @@
 (() => {
-// Compress uploads into metadata-free WebP in the browser.
-const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
-const MAX_IMAGE_EDGE = 960;
-const MAX_STORED_BYTES = 350 * 1024;
+// Compress uploads into metadata-free WebP/JPEG in the browser.
+const MAX_SOURCE_BYTES = 25 * 1024 * 1024; // 25 MB source limit (handles 48MP phone photos)
+const MAX_IMAGE_EDGE = 1000;
+const MAX_STORED_BYTES = 350 * 1024; // Safe margin below server's 450 KB limit
 const OUTPUT_MIME = "image/webp";
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Could not read that photo."));
+    reader.onerror = () => reject(new Error("Could not read that photo file."));
     reader.onload = () => resolve(reader.result);
     reader.readAsDataURL(file);
   });
@@ -23,7 +23,7 @@ function loadImage(source) {
   });
 }
 
-function canvasToDataUrl(canvas, quality) {
+function canvasToDataUrl(canvas, mimeType, quality) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(async blob => {
       if (!blob) {
@@ -35,21 +35,32 @@ function canvasToDataUrl(canvas, quality) {
       } catch (error) {
         reject(error);
       }
-    }, OUTPUT_MIME, quality);
+    }, mimeType, quality);
   });
 }
 
 async function prepareItemPhoto(file) {
-  if (!file || !file.type.startsWith("image/")) {
+  if (!file) {
     throw new Error("Choose an image file for the item photo.");
   }
+
+  // Accept any image MIME type, or files ending in typical photo extensions (handles HEIC/JPEG on iOS/Android)
+  const isImageMime = file.type && file.type.startsWith("image/");
+  const hasImageExtension = /\.(jpe?g|png|webp|gif|bmp|heic|heif|avif)$/i.test(file.name || "");
+  if (!isImageMime && !hasImageExtension) {
+    throw new Error("Choose an image file for the item photo.");
+  }
+
   if (file.size > MAX_SOURCE_BYTES) {
-    throw new Error("Photo is too large. Choose an image under 12 MB.");
+    throw new Error("Photo is too large. Choose an image under 25 MB.");
   }
 
   const sourceUrl = await readFileAsDataUrl(file);
   const image = await loadImage(sourceUrl);
-  const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(image.naturalWidth, image.naturalHeight));
+
+  // Resize preserving aspect ratio
+  const maxEdge = Math.max(image.naturalWidth, image.naturalHeight);
+  const scale = Math.min(1, MAX_IMAGE_EDGE / maxEdge);
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
   canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
@@ -60,11 +71,35 @@ async function prepareItemPhoto(file) {
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-  for (const quality of [0.82, 0.72, 0.62, 0.52]) {
-    const dataUrl = await canvasToDataUrl(canvas, quality);
-    if (dataUrl.length * 0.75 <= MAX_STORED_BYTES) return dataUrl;
+  // Progressive compression loop: step down resolution or quality until it is comfortably within limits
+  const targetBytes = MAX_STORED_BYTES;
+  const qualities = [0.80, 0.70, 0.60, 0.50, 0.40, 0.30];
+
+  for (const quality of qualities) {
+    const dataUrl = await canvasToDataUrl(canvas, OUTPUT_MIME, quality);
+    // If browser supports webp export and size is within bounds
+    if (dataUrl.startsWith("data:image/webp") && (dataUrl.length * 0.75) <= targetBytes) {
+      return dataUrl;
+    }
   }
-  throw new Error("Photo could not be compressed enough to save. Try a smaller image.");
+
+  // If still too large, downscale canvas dimensions further and retry
+  const halfCanvas = document.createElement("canvas");
+  halfCanvas.width = Math.round(canvas.width * 0.7);
+  halfCanvas.height = Math.round(canvas.height * 0.7);
+  const halfCtx = halfCanvas.getContext("2d");
+  halfCtx.fillStyle = "#ffffff";
+  halfCtx.fillRect(0, 0, halfCanvas.width, halfCanvas.height);
+  halfCtx.drawImage(canvas, 0, 0, halfCanvas.width, halfCanvas.height);
+
+  for (const quality of [0.65, 0.50, 0.35]) {
+    const dataUrl = await canvasToDataUrl(halfCanvas, OUTPUT_MIME, quality);
+    if (dataUrl.startsWith("data:image/webp") && (dataUrl.length * 0.75) <= targetBytes) {
+      return dataUrl;
+    }
+  }
+
+  throw new Error("Photo could not be compressed enough to save. Try taking a photo closer or lower resolution.");
 }
 
 window.prepareItemPhoto = prepareItemPhoto;
