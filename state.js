@@ -50,6 +50,11 @@ class AppState {
     return true;
   }
 
+  deleteItem(itemId) {
+    this.items = this.items.filter(item => item.id !== itemId);
+    return true;
+  }
+
   claimItem(itemId, claimDetails) {
     const item = this.items.find(i => i.id === itemId);
     if (!item) return false;

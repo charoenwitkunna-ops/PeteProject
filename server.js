@@ -286,6 +286,26 @@ app.post("/api/items", requireAuth, requireAuthority, async (request, response) 
   }
 });
 
+app.delete("/api/items/:itemId", requireAuth, requireAuthority, async (request, response) => {
+  const { itemId } = request.params;
+  try {
+    const { firestore } = getServices();
+    const itemReference = firestore.collection("items").doc(itemId);
+    const itemDocument = await itemReference.get();
+
+    if (!itemDocument.exists) {
+      return response.status(404).json({ error: "Item not found." });
+    }
+
+    await itemReference.delete();
+    invalidateItem(itemId);
+    return response.json({ ok: true, id: itemId });
+  } catch (error) {
+    console.error("Could not delete item:", error);
+    return response.status(500).json({ error: "Could not delete the item." });
+  }
+});
+
 app.post("/api/lost-reports", requireAuth, async (request, response) => {
   const payload = cleanPayload(request.body);
   const report = {

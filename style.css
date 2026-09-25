@@ -416,6 +416,20 @@ body {
   color: white;
 }
 
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
 .btn-block {
   width: 100%;
 }
@@ -2181,8 +2195,13 @@ body {
 
 .clean-actions-row {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
+.clean-actions-row:not(:has(.btn-danger)) {
   justify-content: flex-end;
-  padding-top: 0.25rem;
 }
 
 @media (max-width: 600px) {

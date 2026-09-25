@@ -59,3 +59,10 @@ export function createHandover(handoverDetails) {
     body: JSON.stringify(handoverDetails)
   });
 }
+
+export function deleteItem(itemId) {
+  return apiRequest(`/api/items/${encodeURIComponent(itemId)}`, {
+    method: "DELETE"
+  });
+}
+

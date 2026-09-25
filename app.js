@@ -17,7 +17,8 @@ import {
   fetchLostReports,
   createLostReport,
   updateLostReportStatus,
-  createHandover
+  createHandover,
+  deleteItem
 } from "./api.js";
 
 // Seed data and persistence are separated into small classic scripts so index.html
@@ -645,10 +646,45 @@ function openDetailModal(item, role) {
 
       <!-- Bottom Actions -->
       <div class="clean-actions-row">
+        ${role === "AUTHORITY" ? `
+          <button class="btn btn-danger btn-delete-item" data-id="${item.id}" data-title="${encodeURIComponent(item.title)}">
+            <i class="fa-solid fa-trash-can"></i> Delete Item
+          </button>
+        ` : ''}
         <button class="btn btn-secondary" onclick="document.getElementById('detailModal').classList.remove('active')">Close</button>
       </div>
     </div>
   `;
+
+  if (role === "AUTHORITY") {
+    const deleteBtn = detailModal.querySelector(".btn-delete-item");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async () => {
+        const itemTitle = decodeURIComponent(deleteBtn.dataset.title || "this item");
+        const confirmed = window.confirm(`Are you sure you want to permanently delete "${itemTitle}"? This cannot be undone.`);
+        if (!confirmed) return;
+
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Deleting...`;
+
+        try {
+          const useBackend = window.location.protocol !== "file:" && state.currentUser?.role === "AUTHORITY";
+          if (useBackend) {
+            await deleteItem(item.id);
+          }
+          state.deleteItem(item.id);
+          detailModal.classList.remove("active");
+          showToast(`Deleted "${item.title}" successfully.`, "info");
+          renderItemsList();
+        } catch (error) {
+          console.error("Could not delete item:", error);
+          alert(error.message || "Failed to delete item.");
+          deleteBtn.disabled = false;
+          deleteBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> Delete Item`;
+        }
+      });
+    }
+  }
 
   detailModal.classList.add("active");
 }
