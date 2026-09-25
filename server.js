@@ -13,32 +13,49 @@ const app = express();
 const dbName = "found-ans";
 const port = Number(process.env.PORT || 3000);
 
+// Trust first proxy hop (Render, Cloudflare, etc.) for secure req.ip determination
+app.set("trust proxy", 1);
+
 app.use(express.json({ limit: "2mb" }));
 
-const blockedStaticPaths = new Set([
-  "/server.js",
-  "/package.json",
-  "/package-lock.json",
-  "/README.md",
-  "/.env",
-  "/.env.example"
+// Whitelist of public web assets allowed to be served statically
+const allowedStaticFiles = new Set([
+  "/",
+  "/index.html",
+  "/style.css",
+  "/app.js",
+  "/api.js",
+  "/data.js",
+  "/state.js",
+  "/search.js",
+  "/photo.js",
+  "/ui-effects.js",
+  "/firebase-auth.js",
+  "/favicon.ico"
 ]);
 
 app.use((request, response, next) => {
-  if (blockedStaticPaths.has(request.path)) {
-    return response.status(404).send("Not found");
+  if (request.path.startsWith("/api")) return next();
+
+  // Strictly allow only verified public frontend files
+  if (allowedStaticFiles.has(request.path)) {
+    return next();
   }
-  return next();
+
+  return response.status(404).send("Not found");
 });
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { dotfiles: "deny" }));
 
-// Simple in-memory sliding-window rate limiter (no external deps)
+// Simple in-memory sliding-window rate limiter with route-group key and size cap
 const rateLimits = new Map();
+const MAX_RATE_LIMIT_KEYS = 5000;
+
 function rateLimiter({ windowMs = 60 * 1000, max = 30, message = "Too many requests, please try again later." } = {}) {
   return (req, res, next) => {
-    const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
-    const key = `${req.path}:${ip}`;
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    const routeGroup = req.baseUrl || req.path.split("/")[2] || "general";
+    const key = `${routeGroup}:${ip}`;
     const now = Date.now();
 
     const record = rateLimits.get(key) || { count: 0, resetTime: now + windowMs };
@@ -48,7 +65,9 @@ function rateLimiter({ windowMs = 60 * 1000, max = 30, message = "Too many reque
     }
 
     record.count += 1;
-    rateLimits.set(key, record);
+    if (rateLimits.size < MAX_RATE_LIMIT_KEYS || rateLimits.has(key)) {
+      rateLimits.set(key, record);
+    }
 
     if (record.count > max) {
       return res.status(429).json({ error: message });
@@ -191,16 +210,28 @@ const MAX_ITEM_IMAGE_DATA_CHARS = 600 * 1024;
 function normalizeImage(image) {
   const data = image?.data;
   const contentType = image?.contentType;
-  const isDataUrl = typeof data === "string"
-    && /^data:image\/(webp|jpeg|jpg|png);base64,[a-z0-9+/=]+$/i.test(data);
-
-  if (!isDataUrl) {
+  
+  if (typeof data !== "string" || !data.startsWith("data:image/")) {
     const error = new Error("Item photo must be a valid image data URL (WebP or JPEG).");
     error.statusCode = 400;
     throw error;
   }
 
-  const base64 = data.slice(data.indexOf(",") + 1);
+  const commaIndex = data.indexOf(",");
+  if (commaIndex === -1) {
+    const error = new Error("Invalid image format.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const prefix = data.slice(0, commaIndex);
+  if (!prefix.includes("image/webp") && !prefix.includes("image/jpeg") && !prefix.includes("image/png")) {
+    const error = new Error("Unsupported image format. Please use WebP or JPEG.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const base64 = data.slice(commaIndex + 1);
   const padding = base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0;
   const byteLength = Math.floor(base64.length * 3 / 4) - padding;
 
@@ -210,7 +241,7 @@ function normalizeImage(image) {
     throw error;
   }
 
-  const detectedMime = data.startsWith("data:image/webp") ? "image/webp" : "image/jpeg";
+  const detectedMime = prefix.includes("image/webp") ? "image/webp" : "image/jpeg";
 
   return {
     kind: "embedded",
@@ -431,9 +462,14 @@ app.post("/api/handovers", rateLimiter({ max: 30 }), requireAuth, requireAuthori
         throw new Error("ITEM_NOT_FOUND");
       }
 
+      const itemData = itemDocument.data();
+      if (itemData.status !== "ACTIVE") {
+        throw new Error("ITEM_ALREADY_CLAIMED");
+      }
+
       const handover = {
         itemId,
-        itemCode: itemDocument.data().itemCode,
+        itemCode: itemData.itemCode,
         studentName,
         studentId,
         verificationMethod,
@@ -461,6 +497,9 @@ app.post("/api/handovers", rateLimiter({ max: 30 }), requireAuth, requireAuthori
     if (error.message === "ITEM_NOT_FOUND") {
       return response.status(404).json({ error: "Item not found." });
     }
+    if (error.message === "ITEM_ALREADY_CLAIMED") {
+      return response.status(409).json({ error: "Item has already been claimed and released." });
+    }
     console.error("Could not complete handover:", error);
     return response.status(500).json({ error: "Could not complete the handover." });
   }
@@ -473,9 +512,10 @@ app.get("/api/stats", async (_request, response) => {
     if (cached) return response.json(cached);
 
     const { firestore } = getServices();
+    // Use field selection to avoid fetching large embedded image payloads into memory
     const [itemsSnap, handoversSnap] = await Promise.all([
-      firestore.collection("items").get(),
-      firestore.collection("handovers").get()
+      firestore.collection("items").select("status", "createdAt", "claimedAt").get(),
+      firestore.collection("handovers").select("createdAt").get()
     ]);
 
     let activeCount = 0;

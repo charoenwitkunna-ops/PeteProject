@@ -1,10 +1,10 @@
 import { auth } from "./firebase-auth.js";
 
 async function apiRequest(endpoint, options = {}) {
-  const token = await auth.currentUser?.getIdToken();
+  let token = await auth.currentUser?.getIdToken();
   if (!token) throw new Error("You must be signed in to use the server.");
 
-  const response = await fetch(endpoint, {
+  let response = await fetch(endpoint, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -12,6 +12,23 @@ async function apiRequest(endpoint, options = {}) {
       ...(options.headers || {})
     }
   });
+
+  // Automatically refresh token on 401 Unauthorized (e.g. 1-hour session expiry)
+  if (response.status === 401 && auth.currentUser) {
+    try {
+      token = await auth.currentUser.getIdToken(true);
+      response = await fetch(endpoint, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          ...(options.headers || {})
+        }
+      });
+    } catch (refreshErr) {
+      console.warn("Could not refresh Firebase auth token:", refreshErr);
+    }
+  }
 
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(body.error || "The server could not complete the request.");

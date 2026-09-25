@@ -467,7 +467,7 @@ function renderLostReports() {
     searchButton.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Check catalog';
     searchButton.addEventListener("click", () => {
       state.activeCategory = "ALL";
-      categoryPills.querySelectorAll(".cat-pill").forEach(pill => pill.classList.toggle("active", pill.dataset.cat === "ALL"));
+      if (categorySelect) categorySelect.value = "ALL";
       searchInput.value = report.title;
       state.activeSearchQuery = report.title;
       btnClearSearch.style.display = "block";
@@ -998,9 +998,7 @@ function initEventHandlers() {
       state.activeSearchQuery = "";
       btnClearSearch.style.display = "none";
       state.activeCategory = "ALL";
-      categoryPills.querySelectorAll(".cat-pill").forEach(p => {
-        p.classList.toggle("active", p.dataset.cat === "ALL");
-      });
+      if (categorySelect) categorySelect.value = "ALL";
       toggleHighValue.checked = false;
       state.filterHighValueOnly = false;
       if (sortSelect) {
@@ -1021,6 +1019,7 @@ function initEventHandlers() {
       [addItemModal, claimModal, detailModal, reportLostModal, confirmModal].forEach(modal => {
         if (modal && modal.classList.contains("active")) {
           modal.classList.remove("active");
+          if (modal === addItemModal) stopCameraStream();
         }
       });
     }
@@ -1032,6 +1031,7 @@ function initEventHandlers() {
       // If clicking directly on the overlay backdrop (not the modal dialog inside it)
       if (e.target === overlay) {
         overlay.classList.remove("active");
+        if (overlay === addItemModal) stopCameraStream();
       }
     });
   });
