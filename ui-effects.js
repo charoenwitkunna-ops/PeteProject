@@ -3,21 +3,42 @@
 function showToast(title, message, type = "success") {
   const container = document.getElementById("toastContainer");
   if (!container) return;
+
   const toast = document.createElement("div");
   toast.className = `toast-item toast-${type}`;
-  const icon = type === "success" ? "fa-solid fa-circle-check"
-    : type === "coral" ? "fa-solid fa-wand-magic-sparkles" : "fa-solid fa-bell";
+
+  const iconMap = {
+    success: "fa-solid fa-circle-check",
+    coral: "fa-solid fa-wand-magic-sparkles",
+    warning: "fa-solid fa-triangle-exclamation",
+    info: "fa-solid fa-circle-info"
+  };
+  const icon = iconMap[type] || "fa-solid fa-bell";
+
   toast.innerHTML = `
-    <div class="toast-icon"><i class="${icon}"></i></div>
+    <div class="toast-icon-wrap"><i class="${icon}"></i></div>
     <div class="toast-content">
       <div class="toast-title">${title}</div>
-      <div class="toast-desc">${message}</div>
-    </div>`;
-  container.appendChild(toast);
-  setTimeout(() => {
+      ${message ? `<div class="toast-desc">${message}</div>` : ''}
+    </div>
+    <button type="button" class="toast-close-btn" aria-label="Dismiss">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  `;
+
+  const closeBtn = toast.querySelector(".toast-close-btn");
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
     toast.classList.add("toast-exit");
-    setTimeout(() => toast.remove(), 260);
-  }, 4200);
+    setTimeout(() => toast.remove(), 220);
+  };
+
+  closeBtn.addEventListener("click", dismiss);
+  container.appendChild(toast);
+
+  setTimeout(dismiss, 3800);
 }
 
 function animateCounter(element, target, duration = 1400) {
