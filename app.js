@@ -97,6 +97,41 @@ const reportLostModal = document.getElementById("reportLostModal");
 const btnStudentReportLost = document.getElementById("btnStudentReportLost");
 const btnCloseReportLostModal = document.getElementById("btnCloseReportLostModal");
 const btnCancelReportLost = document.getElementById("btnCancelReportLost");
+
+const confirmModal = document.getElementById("confirmModal");
+const confirmModalTitle = document.getElementById("confirmModalTitle");
+const confirmModalMessage = document.getElementById("confirmModalMessage");
+const confirmModalCancel = document.getElementById("confirmModalCancel");
+const confirmModalConfirm = document.getElementById("confirmModalConfirm");
+
+function showCustomConfirm({ title = "Are you sure?", message = "This action cannot be undone.", confirmText = "Confirm", isDanger = true } = {}) {
+  return new Promise((resolve) => {
+    confirmModalTitle.textContent = title;
+    confirmModalMessage.textContent = message;
+    confirmModalConfirm.textContent = confirmText;
+    confirmModalConfirm.className = isDanger ? "btn btn-danger" : "btn btn-purple";
+
+    const cleanup = () => {
+      confirmModal.classList.remove("active");
+      confirmModalCancel.removeEventListener("click", onCancel);
+      confirmModalConfirm.removeEventListener("click", onConfirm);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    const onConfirm = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    confirmModalCancel.addEventListener("click", onCancel);
+    confirmModalConfirm.addEventListener("click", onConfirm);
+    confirmModal.classList.add("active");
+  });
+}
 const reportLostForm = document.getElementById("reportLostForm");
 
 // Photo Dropzone
@@ -677,7 +712,12 @@ function openDetailModal(item, role) {
     if (deleteBtn) {
       deleteBtn.addEventListener("click", async () => {
         const itemTitle = decodeURIComponent(deleteBtn.dataset.title || "this item");
-        const confirmed = window.confirm(`Are you sure you want to permanently delete "${itemTitle}"? This cannot be undone.`);
+        const confirmed = await showCustomConfirm({
+          title: "Delete this item?",
+          message: `Are you sure you want to permanently delete "${itemTitle}"? This cannot be undone.`,
+          confirmText: "Delete",
+          isDanger: true
+        });
         if (!confirmed) return;
 
         deleteBtn.disabled = true;
@@ -690,11 +730,11 @@ function openDetailModal(item, role) {
           }
           state.deleteItem(item.id);
           detailModal.classList.remove("active");
-          showToast(`Deleted "${item.title}" successfully.`, "info");
+          showToast(`Item Deleted`, `Removed "${item.title}" from catalog.`, "info");
           renderItemsList();
         } catch (error) {
           console.error("Could not delete item:", error);
-          alert(error.message || "Failed to delete item.");
+          showToast("Delete Failed", error.message || "Failed to delete item.", "warning");
           deleteBtn.disabled = false;
           deleteBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> Delete Item`;
         }
@@ -959,7 +999,7 @@ function initEventHandlers() {
   // Keyboard accessibility: Escape to close modals
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      [addItemModal, claimModal, detailModal, reportLostModal].forEach(modal => {
+      [addItemModal, claimModal, detailModal, reportLostModal, confirmModal].forEach(modal => {
         if (modal && modal.classList.contains("active")) {
           modal.classList.remove("active");
         }

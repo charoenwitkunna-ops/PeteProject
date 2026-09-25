@@ -676,6 +676,21 @@
     </div>
   </div>
 
+  <!-- Confirm / Prompt Dialog Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-card" style="max-width: 440px; text-align: center; padding: 2rem 1.75rem;">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1.25rem;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="confirmModalTitle" style="font-family: 'Fraunces', serif; font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--text-dark);">Are you sure?</h3>
+      <p id="confirmModalMessage" style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.75rem;">This action cannot be undone.</p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center;">
+        <button type="button" class="btn btn-secondary" id="confirmModalCancel" style="min-width: 100px;">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmModalConfirm" style="min-width: 120px;">Delete</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification System (Motion Feedback) -->
   <div class="toast-container" id="toastContainer"></div>
 
