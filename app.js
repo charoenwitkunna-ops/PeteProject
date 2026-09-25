@@ -263,8 +263,11 @@ function renderSkeletonGrid(count = 6) {
   `).join("");
 }
 
+let isLoadingServerData = false;
+
 async function loadServerData() {
-  if (window.location.protocol === "file:") return;
+  if (window.location.protocol === "file:" || isLoadingServerData) return;
+  isLoadingServerData = true;
   // If there are no items currently displayed, show skeleton placeholder
   if (state.items.length === 0) {
     renderSkeletonGrid(3);
@@ -280,6 +283,8 @@ async function loadServerData() {
   } catch (err) {
     console.warn("Could not sync items from Firestore:", err.message);
     renderItemsList();
+  } finally {
+    isLoadingServerData = false;
   }
 
   if (state.currentUser?.role === "AUTHORITY") {
@@ -314,11 +319,12 @@ async function showAuthenticatedView(user) {
 }
 
 async function handleLogin(email, password, mode = "signin") {
-  const credential = mode === "signup"
-    ? await createUserWithEmailAndPassword(auth, email, password)
-    : await signInWithEmailAndPassword(auth, email, password);
-
-  await showAuthenticatedView(await getAuthenticatedUser(credential.user));
+  if (mode === "signup") {
+    await createUserWithEmailAndPassword(auth, email, password);
+  } else {
+    await signInWithEmailAndPassword(auth, email, password);
+  }
+  // onAuthStateChanged will handle showAuthenticatedView cleanly without double-firing
 }
 
 async function handleSignOut() {
