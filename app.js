@@ -521,12 +521,7 @@ function createItemCard(item, role) {
             <span>Owner name: <strong class="masked-owner">${item.ownerName}</strong></span>
           </li>
         ` : ''}
-        ${role === "AUTHORITY" && item.storageBin ? `
-          <li>
-            <i class="fa-solid fa-box-archive"></i>
-            <span>Storage: <strong>${item.storageBin}</strong></span>
-          </li>
-        ` : ''}
+
       </ul>
 
       <div class="card-action-bar">
@@ -645,11 +640,6 @@ function openDetailModal(item, role) {
         <div class="clean-vault-block">
           <div class="clean-vault-title">Hidden Notes</div>
           <p class="clean-vault-body">${item.privateNotes || 'No verification notes recorded.'}</p>
-          <div class="clean-vault-footer">
-            <span>Intake Sheet: <strong>${item.sheetRefNo || 'None'}</strong></span>
-            <span class="clean-sep">&bull;</span>
-            <span>Storage Bin: <strong>${item.storageBin || 'Unassigned'}</strong></span>
-          </div>
         </div>
       ` : ''}
 
@@ -675,7 +665,7 @@ function openClaimModal(item) {
       <img class="claim-item-summary-image" src="${getItemImageData(item)}" alt="${item.title}" />
       <div class="claim-item-summary-copy">
         <div class="claim-item-summary-title">${item.title}</div>
-        <div class="claim-item-summary-ref">Ref: ${item.itemCode} &bull; Sheet: ${item.sheetRefNo || 'N/A'}</div>
+        <div class="claim-item-summary-ref">Ref: ${item.itemCode}</div>
       </div>
     </div>
   `;
@@ -1047,8 +1037,8 @@ function initEventHandlers() {
       const foundDate = document.getElementById("itemFoundDate").value;
       const claimDeadline = document.getElementById("itemClaimDeadline").value;
       const foundLocation = document.getElementById("itemLocation").value.trim();
-      const storageBin = document.getElementById("itemStorageBin").value.trim();
-      const sheetRefNo = document.getElementById("itemSheetRef").value.trim();
+      const storageBin = "";
+      const sheetRefNo = "";
       const ownerName = document.getElementById("itemOwnerWritten").value.trim() || null;
       const publicDescription = document.getElementById("itemPublicDesc").value.trim();
       const privateNotes = document.getElementById("itemPrivateNotes").value.trim();
