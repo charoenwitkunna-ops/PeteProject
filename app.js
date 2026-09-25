@@ -1037,8 +1037,6 @@ function initEventHandlers() {
       const foundDate = document.getElementById("itemFoundDate").value;
       const claimDeadline = document.getElementById("itemClaimDeadline").value;
       const foundLocation = document.getElementById("itemLocation").value.trim();
-      const storageBin = "";
-      const sheetRefNo = "";
       const ownerName = document.getElementById("itemOwnerWritten").value.trim() || null;
       const publicDescription = document.getElementById("itemPublicDesc").value.trim();
       const privateNotes = document.getElementById("itemPrivateNotes").value.trim();
@@ -1058,8 +1056,6 @@ function initEventHandlers() {
         foundDate,
         claimDeadline,
         foundLocation,
-        storageBin,
-        sheetRefNo,
         ownerName,
         publicDescription,
         privateNotes,

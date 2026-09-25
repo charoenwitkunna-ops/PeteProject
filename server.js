@@ -257,8 +257,6 @@ app.post("/api/items", requireAuth, requireAuthority, async (request, response) 
       foundDate: String(payload.foundDate || "").trim(),
       claimDeadline: String(payload.claimDeadline || "").trim(),
       foundLocation: String(payload.foundLocation || "").trim(),
-      storageBin: String(payload.storageBin || "").trim(),
-      sheetRefNo: String(payload.sheetRefNo || "").trim(),
       ownerName: String(payload.ownerName || "").trim() || null,
       publicDescription: String(payload.publicDescription || "").trim(),
       privateNotes: String(payload.privateNotes || "").trim(),
