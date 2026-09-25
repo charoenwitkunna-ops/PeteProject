@@ -1369,8 +1369,8 @@ async function init() {
         if (waitingEl && typeof stats.waiting === "number") {
           waitingEl.dataset.target = stats.waiting;
         }
-        if (avgTimeEl && stats.avgReturnTime) {
-          avgTimeEl.textContent = stats.avgReturnTime;
+        if (avgTimeEl) {
+          avgTimeEl.textContent = stats.avgReturnTime || "0 days";
         }
       }
     } catch (e) {

@@ -479,7 +479,7 @@ app.get("/api/stats", async (_request, response) => {
     // Fall back to handovers collection size if items doesn't reflect historical claims
     const totalReunited = Math.max(claimedCount, handoversSnap.size);
 
-    let avgReturnTimeLabel = "1–2 days";
+    let avgReturnTimeLabel = "0 days";
     if (validDurationCount > 0) {
       const avgDays = (totalReturnDurationMs / validDurationCount) / (1000 * 60 * 60 * 24);
       if (avgDays < 1) {
