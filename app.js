@@ -69,7 +69,7 @@ const searchInput = document.getElementById("searchInput");
 const btnClearSearch = document.getElementById("btnClearSearch");
 const btnSearchTrigger = document.getElementById("btnSearchTrigger");
 const toggleHighValue = document.getElementById("toggleHighValue");
-const categoryPills = document.getElementById("categoryPills");
+const categorySelect = document.getElementById("categorySelect");
 const authorityStatusWrap = document.getElementById("authorityStatusWrap");
 const authorityStatusSelect = document.getElementById("authorityStatusSelect");
 const authorityActionsHeader = document.getElementById("authorityActionsHeader");
@@ -207,9 +207,7 @@ function renderNav() {
   if (role === "STUDENT") {
     links.push({ id: "viewInstructions", label: "How it works" });
   } else if (role === "AUTHORITY") {
-    links.push({ id: "viewLostReports", label: "Lost reports ( WOP )" });
-    links.push({ id: "viewAuthorityProtocol", label: "Authority SOP ( WOP )" });
-    links.push({ id: "viewDigestPreview", label: "Monday Digest ( WOP )" });
+    links.push({ id: "viewLostReports", label: "Lost reports" });
   }
 
   links.forEach(l => {
@@ -245,6 +243,19 @@ function renderNav() {
     reportBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Log found item`;
     reportBtn.addEventListener("click", openAddModal);
     navRightSection.appendChild(reportBtn);
+  } else if (role === "STUDENT") {
+    const studentReportBtn = document.createElement("button");
+    studentReportBtn.className = "btn btn-purple nav-action-btn";
+    studentReportBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Report lost item`;
+    studentReportBtn.addEventListener("click", () => {
+      document.getElementById("reportLostDate").value = new Date().toISOString().split("T")[0];
+      const emailField = document.getElementById("reportLostStudentEmail");
+      const nameField = document.getElementById("reportLostStudentName");
+      if (emailField) emailField.value = state.currentUser?.email || "";
+      if (nameField && !nameField.value) nameField.value = state.currentUser?.name || "";
+      reportLostModal.classList.add("active");
+    });
+    navRightSection.appendChild(studentReportBtn);
   }
 
   // User Profile Chip
@@ -522,10 +533,9 @@ function renderItemsList() {
 
 function createItemCard(item, role) {
   const card = document.createElement("div");
-  card.className = "item-card";
+  card.className = "item-card-minimal";
 
   const isClaimed = item.status === "CLAIMED";
-  const hasOwnerName = Boolean(item.ownerName || item.ownerNamePresent);
 
   // Deadline calculation
   const deadlineDate = new Date(item.claimDeadline);
@@ -533,60 +543,45 @@ function createItemCard(item, role) {
   const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
   const isUrgent = diffDays <= 5 && diffDays >= 0;
 
+  const categoryName = item.category ? item.category.replace('_', ' ').toLowerCase() : 'item';
+  const formattedCategory = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+
   card.innerHTML = `
     <div class="card-media">
       <img src="${getItemImageData(item)}" alt="${escapeHtml(item.title)}" loading="lazy" />
-      <div class="card-media-badges">
-        <span class="category-tag">${escapeHtml(item.category.replace('_', ' '))}</span>
-        <span class="media-deadline-pill ${isUrgent ? 'urgent' : ''}">
-          <i class="fa-regular fa-clock"></i> ${diffDays > 0 ? `${diffDays}d left` : 'Expired'}
-        </span>
-      </div>
-      ${item.isHighValue ? `<span class="high-value-pill"><i class="fa-solid fa-star"></i> High-Value</span>` : ''}
+      <span class="category-tag-minimal">${escapeHtml(formattedCategory)}</span>
+      ${item.isHighValue ? `<span class="high-value-dot" title="High-Value Item"><i class="fa-solid fa-star"></i></span>` : ''}
       ${isClaimed ? `
         <div class="claimed-mask">
           <i class="fa-solid fa-circle-check"></i>
-          <span>RETURNED TO OWNER</span>
+          <span>RETURNED</span>
         </div>
       ` : ''}
     </div>
     
-    <div class="card-body">
-      <div class="card-meta-top">
-        <span class="item-code-badge">${escapeHtml(item.itemCode)}</span>
+    <div class="card-content">
+      <div class="card-header-row">
+        <h3 class="card-item-title">${escapeHtml(item.title)}</h3>
+        <span class="card-item-code">${escapeHtml(item.itemCode)}</span>
       </div>
 
-      <h3 class="item-title">${escapeHtml(item.title)}</h3>
-
-      <ul class="item-info-list">
-        <li>
-          <i class="fa-regular fa-calendar"></i>
-          <span>Found: <strong>${escapeHtml(item.foundDate)}</strong></span>
-        </li>
-        <li>
-          <i class="fa-solid fa-location-dot"></i>
-          <span>Location: <strong>${escapeHtml(item.foundLocation)}</strong></span>
-        </li>
-        ${item.ownerName ? `
-          <li>
-            <i class="fa-solid fa-tag"></i>
-            <span>Owner name: <strong class="masked-owner">${escapeHtml(item.ownerName)}</strong></span>
-          </li>
+      <div class="card-meta-line">
+        <span>${escapeHtml(item.foundLocation)}</span>
+        <span class="meta-dot">&middot;</span>
+        <span>${escapeHtml(item.foundDate)}</span>
+        ${isUrgent && !isClaimed ? `
+          <span class="meta-dot">&middot;</span>
+          <span class="urgent-text">${diffDays > 0 ? `${diffDays}d left` : 'Expired'}</span>
         ` : ''}
+      </div>
 
-      </ul>
-
-      <div class="card-action-bar">
-        <button class="btn btn-secondary btn-block btn-view-details" data-id="${item.id}">
-          <i class="fa-regular fa-eye"></i> View details
-        </button>
-
-        ${role === "AUTHORITY" && !isClaimed ? `
-          <button class="btn btn-success btn-claim-action" data-id="${item.id}" title="Hand over to student">
+      ${role === "AUTHORITY" && !isClaimed ? `
+        <div class="card-quick-actions" onclick="event.stopPropagation()">
+          <button class="btn-handover-inline btn-claim-action" data-id="${item.id}" title="Hand over to student">
             <i class="fa-solid fa-handshake"></i> Handover
           </button>
-        ` : ''}
-      </div>
+        </div>
+      ` : ''}
     </div>
   `;
 
@@ -617,7 +612,8 @@ function createItemCard(item, role) {
     }
   }
 
-  card.querySelector(".btn-view-details").addEventListener("click", () => openDetailModal(item, role));
+  // Entire card is clickable to view details
+  card.addEventListener("click", () => openDetailModal(item, role));
 
   const claimBtn = card.querySelector(".btn-claim-action");
   if (claimBtn) {
@@ -929,10 +925,12 @@ function initEventHandlers() {
     }, 200);
   });
 
-  btnSearchTrigger.addEventListener("click", () => {
-    state.activeSearchQuery = searchInput.value;
-    renderItemsList();
-  });
+  if (btnSearchTrigger) {
+    btnSearchTrigger.addEventListener("click", () => {
+      state.activeSearchQuery = searchInput.value;
+      renderItemsList();
+    });
+  }
 
   btnClearSearch.addEventListener("click", () => {
     searchInput.value = "";
@@ -941,15 +939,13 @@ function initEventHandlers() {
     renderItemsList();
   });
 
-  // Category pills
-  categoryPills.querySelectorAll(".cat-pill").forEach(pill => {
-    pill.addEventListener("click", () => {
-      categoryPills.querySelectorAll(".cat-pill").forEach(p => p.classList.remove("active"));
-      pill.classList.add("active");
-      state.activeCategory = pill.dataset.cat;
+  // Category select dropdown
+  if (categorySelect) {
+    categorySelect.addEventListener("change", (e) => {
+      state.activeCategory = e.target.value;
       renderItemsList();
     });
-  });
+  }
 
   // High-value filter toggle
   toggleHighValue.addEventListener("change", (e) => {
@@ -1005,6 +1001,16 @@ function initEventHandlers() {
         }
       });
     }
+  });
+
+  // Click on gray backdrop/overlay to close modal
+  document.querySelectorAll(".modal-overlay").forEach(overlay => {
+    overlay.addEventListener("click", (e) => {
+      // If clicking directly on the overlay backdrop (not the modal dialog inside it)
+      if (e.target === overlay) {
+        overlay.classList.remove("active");
+      }
+    });
   });
   if (btnOpenAddModal) {
     btnOpenAddModal.addEventListener("click", openAddModal);
@@ -1081,10 +1087,11 @@ function initEventHandlers() {
   // Photo Dropzone interactions. Resizing and re-encoding keeps local storage usable.
   let photoProcessing = Promise.resolve("");
   let photoVersion = 0;
-  photoDropzone.addEventListener("click", () => itemPhotoFile.click());
+  const itemCameraFile = document.getElementById("itemCameraFile");
+  const btnTriggerCamera = document.getElementById("btnTriggerCamera");
+  const btnTriggerUpload = document.getElementById("btnTriggerUpload");
 
-  itemPhotoFile.addEventListener("change", (e) => {
-    const file = e.target.files[0];
+  function processSelectedFile(file) {
     if (!file) return;
     const version = ++photoVersion;
     photoDataUrl.value = "";
@@ -1100,11 +1107,41 @@ function initEventHandlers() {
     }).catch(error => {
       if (version === photoVersion) {
         itemPhotoFile.value = "";
+        if (itemCameraFile) itemCameraFile.value = "";
         showToast("Photo not added", error.message, "warning");
-        dropzonePrompt.querySelector("p").textContent = "Click to capture photo or upload image file";
+        dropzonePrompt.querySelector("p").textContent = "Click to upload image file or snap a photo";
       }
       return "";
     });
+  }
+
+  itemPhotoFile.addEventListener("change", (e) => {
+    processSelectedFile(e.target.files[0]);
+  });
+
+  if (itemCameraFile) {
+    itemCameraFile.addEventListener("change", (e) => {
+      processSelectedFile(e.target.files[0]);
+    });
+  }
+
+  if (btnTriggerCamera) {
+    btnTriggerCamera.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (itemCameraFile) itemCameraFile.click();
+    });
+  }
+
+  if (btnTriggerUpload) {
+    btnTriggerUpload.addEventListener("click", (e) => {
+      e.stopPropagation();
+      itemPhotoFile.click();
+    });
+  }
+
+  photoDropzone.addEventListener("click", (e) => {
+    if (e.target.closest("button")) return;
+    itemPhotoFile.click();
   });
 
   btnClearPhoto.addEventListener("click", (e) => {

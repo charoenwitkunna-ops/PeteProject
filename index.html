@@ -23,13 +23,7 @@
   <header class="navbar">
     <div class="nav-container">
       <div class="brand" id="brandHomeBtn">
-        <div class="logo-shield">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span class="logo-sparkle">✦</span>
-        </div>
-        <div class="brand-text">
-          <span class="brand-title">FOUND<span class="at-symbol">@</span>ANS</span>
-        </div>
+        <span class="brand-title">FOUND<span class="at-symbol">@</span>ANS</span>
       </div>
 
       <!-- Navigation Links -->
@@ -175,75 +169,58 @@
     <!-- 2. ITEMS LIST & SEARCH VIEW (Student & Authority Common View) -->
     <section id="viewItems" class="view-panel">
       
-      <!-- Search & Filter Console -->
-      <div class="search-console-card">
-        
-        <!-- Big Hero-style Search Bar with Coral Button -->
-        <div class="main-search-row">
-          <div class="search-input-pill">
-            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <input 
-              type="text" 
-              id="searchInput" 
-              placeholder="Search for a water bottle, jacket, calculator, keys, AirPods..." 
-            />
-            <button class="clear-search" id="btnClearSearch" title="Clear search">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <button class="btn btn-coral btn-search-trigger" id="btnSearchTrigger">Search</button>
-        </div>
-
-        <!-- Quick Trending Suggestions -->
-        <div class="quick-suggest-row">
-          <span class="suggest-label"><i class="fa-solid fa-bolt text-coral"></i> Quick search:</span>
-          <button type="button" class="chip-suggest" data-query="Hydro Flask">🍶 Hydro Flask</button>
-          <button type="button" class="chip-suggest" data-query="AirPods">🎧 AirPods</button>
-          <button type="button" class="chip-suggest" data-query="Calculator">📐 Casio Calculator</button>
-          <button type="button" class="chip-suggest" data-query="Blazer">🧥 Blazer</button>
-          <button type="button" class="chip-suggest" data-query="Keys">🔑 Keychains</button>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="filter-controls-row">
-          <div class="category-pills-scroll-track">
-            <div class="category-pills" id="categoryPills">
-              <button class="cat-pill active" data-cat="ALL">All Items</button>
-              <button class="cat-pill" data-cat="ELECTRONICS">Electronics</button>
-              <button class="cat-pill" data-cat="BOTTLES">Water Bottles</button>
-              <button class="cat-pill" data-cat="CLOTHING">Uniform &amp; Jackets</button>
-              <button class="cat-pill" data-cat="STATIONERY">Stationery</button>
-              <button class="cat-pill" data-cat="BAGS_WALLETS">Bags &amp; Wallets</button>
-              <button class="cat-pill" data-cat="OTHER">Other</button>
-            </div>
-          </div>
-
-          <div class="secondary-toggles">
-            <div class="sort-wrap">
-              <label for="sortSelect" class="sort-label" aria-label="Sort items" title="Sort items"><i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i></label>
-              <select id="sortSelect" class="status-dropdown">
-                <option value="NEWEST">Newest Found</option>
-                <option value="DEADLINE">Expiring Soonest</option>
-                <option value="TITLE">Title (A-Z)</option>
+      <!-- Search & Filter Bar (Minimalist Streamlined) -->
+      <div class="search-console-minimal">
+        <div class="search-bar-unified">
+          <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search items or codes (e.g. calculator, AirPods, LF-2026)..." 
+          />
+          <button class="clear-search" id="btnClearSearch" title="Clear search">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          
+          <div class="search-bar-controls">
+            <!-- Category Filter Dropdown -->
+            <div class="category-select-wrap">
+              <select id="categorySelect" class="minimal-dropdown">
+                <option value="ALL">All Categories</option>
+                <option value="ELECTRONICS">Electronics</option>
+                <option value="BOTTLES">Water Bottles</option>
+                <option value="CLOTHING">Uniform &amp; Jackets</option>
+                <option value="STATIONERY">Stationery</option>
+                <option value="BAGS_WALLETS">Bags &amp; Wallets</option>
+                <option value="OTHER">Other</option>
               </select>
             </div>
 
-            <label class="toggle-wrap">
+            <!-- Sort Dropdown -->
+            <div class="sort-wrap">
+              <select id="sortSelect" class="minimal-dropdown" title="Sort items">
+                <option value="NEWEST">Newest</option>
+                <option value="DEADLINE">Expiring Soon</option>
+                <option value="TITLE">A–Z</option>
+              </select>
+            </div>
+
+            <!-- High-Value Toggle Pill -->
+            <label class="toggle-pill-wrap" title="Show high-value items only">
               <input type="checkbox" id="toggleHighValue" />
-              <span class="toggle-check"></span>
-              <span class="toggle-txt"><i class="fa-solid fa-star text-gold"></i> High-Value Only</span>
+              <span class="toggle-pill-btn"><i class="fa-solid fa-star"></i> High-Value</span>
             </label>
 
+            <!-- Authority Status Dropdown -->
             <div id="authorityStatusWrap" style="display: none;">
-              <select id="authorityStatusSelect" class="status-dropdown">
-                <option value="ACTIVE">Status: Waiting (Active)</option>
-                <option value="CLAIMED">Status: Claimed &amp; Returned</option>
-                <option value="ALL">Status: All Records</option>
+              <select id="authorityStatusSelect" class="minimal-dropdown">
+                <option value="ACTIVE">Waiting</option>
+                <option value="CLAIMED">Claimed</option>
+                <option value="ALL">All Records</option>
               </select>
             </div>
           </div>
         </div>
-
       </div>
 
       <!-- Items Grid -->
@@ -480,19 +457,30 @@
           </div>
         </div>
 
-        <!-- Photo Upload Zone -->
+        <!-- Photo Upload & Camera Zone -->
         <div class="form-group">
           <label>Item Photo *</label>
           <div class="photo-dropzone" id="photoDropzone">
+            <!-- File inputs: one for file browse, one for direct camera capture -->
             <input type="file" id="itemPhotoFile" accept="image/*" style="display:none;" />
+            <input type="file" id="itemCameraFile" accept="image/*" capture="environment" style="display:none;" />
+
             <div id="dropzonePrompt" class="dropzone-prompt">
               <i class="fa-solid fa-cloud-arrow-up text-purple"></i>
-              <p>Click to capture photo or upload image file</p>
-              <span>EXIF metadata stripped automatically for student safety</span>
+              <p>Click to upload image file or snap a photo</p>
+              <div class="photo-actions-row">
+                <button type="button" class="btn-photo-action" id="btnTriggerCamera">
+                  <i class="fa-solid fa-camera"></i> Take Picture
+                </button>
+                <button type="button" class="btn-photo-action" id="btnTriggerUpload">
+                  <i class="fa-regular fa-image"></i> Browse Files
+                </button>
+              </div>
+              <span class="exif-note">EXIF metadata stripped automatically for student safety</span>
             </div>
             <div id="dropzonePreview" class="dropzone-preview" style="display:none;">
               <img id="previewImg" src="" alt="Item Preview" />
-              <button type="button" class="btn-clear-photo" id="btnClearPhoto"><i class="fa-solid fa-trash"></i></button>
+              <button type="button" class="btn-clear-photo" id="btnClearPhoto" title="Remove photo"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
           <input type="hidden" id="photoDataUrl" />
@@ -522,8 +510,8 @@
             <input type="text" id="itemLocation" placeholder="e.g. Secondary Cafeteria Table 4" required />
           </div>
           <div class="form-group flex-1">
-            <label for="itemOwnerWritten">Owner name (if written on item)</label>
-            <input type="text" id="itemOwnerWritten" placeholder="e.g. Somchai Prasert — leave blank if none" />
+            <label for="itemOwnerWritten">Owner name</label>
+            <input type="text" id="itemOwnerWritten" placeholder="Keep blank if none" />
             <small class="helper-note"><i class="fa-solid fa-shield-halved"></i> Students only see whether a name label is present. Keep ownership clues in private notes.</small>
           </div>
         </div>
