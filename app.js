@@ -198,6 +198,26 @@ function renderNav() {
   navRightSection.innerHTML = "";
   
   if (!state.currentUser) {
+    // Guest Navigation
+    const browseBtn = document.createElement("button");
+    browseBtn.className = `nav-link ${state.currentView === 'viewItems' ? 'active' : ''}`;
+    browseBtn.dataset.view = "viewItems";
+    browseBtn.textContent = "Browse items";
+    browseBtn.addEventListener("click", () => navigateTo("viewItems"));
+    navTabs.appendChild(browseBtn);
+
+    const indicator = document.createElement("span");
+    indicator.className = "nav-indicator";
+    indicator.id = "navIndicator";
+    navTabs.appendChild(indicator);
+    requestAnimationFrame(() => updateNavIndicator());
+
+    // Sign in action button for guests
+    const signInBtn = document.createElement("button");
+    signInBtn.className = "btn btn-purple nav-action-btn";
+    signInBtn.innerHTML = `<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in`;
+    signInBtn.addEventListener("click", () => navigateTo("viewLogin"));
+    navRightSection.appendChild(signInBtn);
     return;
   }
 
@@ -286,7 +306,8 @@ function renderNav() {
 
 // --- FIREBASE AUTHENTICATION ---
 async function getAuthenticatedUser(firebaseUser) {
-  const tokenResult = await firebaseUser.getIdTokenResult(true);
+  // Use cached token result instead of forcing a network refresh (true -> false)
+  const tokenResult = await firebaseUser.getIdTokenResult(false);
   const email = firebaseUser.email?.trim().toLowerCase() || "";
   const emailName = email.split("@")[0] || "Account";
   const displayName = firebaseUser.displayName
@@ -1397,7 +1418,7 @@ async function init() {
     });
   });
 
-  onAuthStateChanged(auth, async (firebaseUser) => {
+    onAuthStateChanged(auth, async (firebaseUser) => {
     if (firebaseUser) {
       try {
         showAuthenticatedView(await getAuthenticatedUser(firebaseUser));
@@ -1405,12 +1426,12 @@ async function init() {
         console.error("Could not restore Firebase session:", error);
         state.setCurrentUser(null);
         renderNav();
-        navigateTo("viewLogin");
+        loadServerData();
       }
     } else {
       state.setCurrentUser(null);
       renderNav();
-      navigateTo("viewLogin");
+      loadServerData();
     }
   });
 }
