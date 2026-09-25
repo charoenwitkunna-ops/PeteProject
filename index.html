@@ -470,7 +470,7 @@
                 <i class="fa-solid fa-cloud-arrow-up"></i>
               </div>
               <div class="dropzone-text-group">
-                <p class="dropzone-main-text">Upload item photo or snap with camera</p>
+                <p class="dropzone-main-text" id="dropzoneStatusText">Upload item photo or snap with camera</p>
                 <span class="exif-note"><i class="fa-solid fa-shield-halved"></i> EXIF stripped automatically</span>
               </div>
               <div class="photo-actions-row">
@@ -482,6 +482,21 @@
                 </button>
               </div>
             </div>
+
+            <!-- Live Camera Viewfinder Overlay -->
+            <div id="cameraViewfinder" class="camera-viewfinder" style="display: none;">
+              <video id="cameraVideo" autoplay playsinline muted></video>
+              <canvas id="cameraCanvas" style="display: none;"></canvas>
+              <div class="camera-controls">
+                <button type="button" class="btn-camera-snap" id="btnSnapPhoto">
+                  <i class="fa-solid fa-circle-dot"></i> Capture
+                </button>
+                <button type="button" class="btn-camera-cancel" id="btnCancelCamera">
+                  <i class="fa-solid fa-xmark"></i> Cancel
+                </button>
+              </div>
+            </div>
+
             <div id="dropzonePreview" class="dropzone-preview" style="display:none;">
               <img id="previewImg" src="" alt="Item Preview" />
               <button type="button" class="btn-clear-photo" id="btnClearPhoto" title="Remove photo"><i class="fa-solid fa-trash"></i></button>

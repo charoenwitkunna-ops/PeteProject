@@ -1085,16 +1085,63 @@ function initEventHandlers() {
   // Photo Dropzone interactions. Resizing and re-encoding keeps local storage usable.
   let photoProcessing = Promise.resolve("");
   let photoVersion = 0;
+  let activeCameraStream = null;
+
   const itemCameraFile = document.getElementById("itemCameraFile");
   const btnTriggerCamera = document.getElementById("btnTriggerCamera");
   const btnTriggerUpload = document.getElementById("btnTriggerUpload");
+  const cameraViewfinder = document.getElementById("cameraViewfinder");
+  const cameraVideo = document.getElementById("cameraVideo");
+  const cameraCanvas = document.getElementById("cameraCanvas");
+  const btnSnapPhoto = document.getElementById("btnSnapPhoto");
+  const btnCancelCamera = document.getElementById("btnCancelCamera");
+  const dropzoneStatusText = document.getElementById("dropzoneStatusText");
+
+  function stopCameraStream() {
+    if (activeCameraStream) {
+      activeCameraStream.getTracks().forEach(track => track.stop());
+      activeCameraStream = null;
+    }
+    if (cameraVideo) cameraVideo.srcObject = null;
+    if (cameraViewfinder) cameraViewfinder.style.display = "none";
+  }
+
+  async function openLiveCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      // Fallback for mobile / browsers without getUserMedia support
+      if (itemCameraFile) itemCameraFile.click();
+      return;
+    }
+
+    try {
+      dropzonePrompt.style.display = "none";
+      cameraViewfinder.style.display = "flex";
+      
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 960 } },
+        audio: false
+      });
+      activeCameraStream = stream;
+      cameraVideo.srcObject = stream;
+      await cameraVideo.play();
+    } catch (err) {
+      console.warn("Could not start live camera preview, falling back to file input:", err);
+      stopCameraStream();
+      dropzonePrompt.style.display = "flex";
+      if (itemCameraFile) {
+        itemCameraFile.click();
+      } else {
+        showToast("Camera Access Denied", "Check your browser camera permissions or upload an image file.", "warning");
+      }
+    }
+  }
 
   function processSelectedFile(file) {
     if (!file) return;
     const version = ++photoVersion;
     photoDataUrl.value = "";
-    dropzonePrompt.style.display = "block";
-    dropzonePrompt.querySelector("p").textContent = "Preparing photo…";
+    dropzonePrompt.style.display = "flex";
+    if (dropzoneStatusText) dropzoneStatusText.textContent = "Preparing photo…";
     photoProcessing = window.prepareItemPhoto(file).then(dataUrl => {
       if (version !== photoVersion) return "";
       photoDataUrl.value = dataUrl;
@@ -1107,7 +1154,7 @@ function initEventHandlers() {
         itemPhotoFile.value = "";
         if (itemCameraFile) itemCameraFile.value = "";
         showToast("Photo not added", error.message, "warning");
-        dropzonePrompt.querySelector("p").textContent = "Click to upload image file or snap a photo";
+        if (dropzoneStatusText) dropzoneStatusText.textContent = "Upload item photo or snap with camera";
       }
       return "";
     });
@@ -1126,32 +1173,70 @@ function initEventHandlers() {
   if (btnTriggerCamera) {
     btnTriggerCamera.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (itemCameraFile) itemCameraFile.click();
+      openLiveCamera();
+    });
+  }
+
+  if (btnSnapPhoto) {
+    btnSnapPhoto.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) return;
+
+      cameraCanvas.width = cameraVideo.videoWidth;
+      cameraCanvas.height = cameraVideo.videoHeight;
+      const ctx = cameraCanvas.getContext("2d");
+      ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+
+      cameraCanvas.toBlob((blob) => {
+        stopCameraStream();
+        if (blob) {
+          const capturedFile = new File([blob], `item-capture-${Date.now()}.jpg`, { type: "image/jpeg" });
+          processSelectedFile(capturedFile);
+        }
+      }, "image/jpeg", 0.92);
+    });
+  }
+
+  if (btnCancelCamera) {
+    btnCancelCamera.addEventListener("click", (e) => {
+      e.stopPropagation();
+      stopCameraStream();
+      dropzonePrompt.style.display = "flex";
     });
   }
 
   if (btnTriggerUpload) {
     btnTriggerUpload.addEventListener("click", (e) => {
       e.stopPropagation();
+      stopCameraStream();
       itemPhotoFile.click();
     });
   }
 
   photoDropzone.addEventListener("click", (e) => {
-    if (e.target.closest("button")) return;
+    if (e.target.closest("button") || e.target.closest("#cameraViewfinder")) return;
     itemPhotoFile.click();
   });
 
   btnClearPhoto.addEventListener("click", (e) => {
     e.stopPropagation();
+    stopCameraStream();
     photoVersion++;
     photoProcessing = Promise.resolve("");
     itemPhotoFile.value = "";
+    if (itemCameraFile) itemCameraFile.value = "";
     photoDataUrl.value = "";
     previewImg.src = "";
-    dropzonePrompt.querySelector("p").textContent = "Click to capture photo or upload image file";
-    dropzonePrompt.style.display = "block";
+    if (dropzoneStatusText) dropzoneStatusText.textContent = "Upload item photo or snap with camera";
+    dropzonePrompt.style.display = "flex";
     dropzonePreview.style.display = "none";
+  });
+
+  // Stop camera stream if modal is closed
+  [btnCloseAddModal, btnCancelAdd].forEach(btn => {
+    if (btn) {
+      btn.addEventListener("click", () => stopCameraStream());
+    }
   });
 
   // Add Item Submit
