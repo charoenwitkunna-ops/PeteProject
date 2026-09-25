@@ -1,0 +1,8 @@
+node_modules/
+trash_next/
+Temp/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
