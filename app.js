@@ -548,10 +548,8 @@ function renderItemsList() {
   emptyState.style.display = "none";
   itemsGrid.style.display = "grid";
 
-  // Staggered cascade entrance animation
-  filtered.forEach((item, index) => {
+  filtered.forEach((item) => {
     const card = createItemCard(item, role);
-    card.style.animationDelay = `${index * 55}ms`;
     itemsGrid.appendChild(card);
   });
 }

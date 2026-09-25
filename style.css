@@ -1242,7 +1242,6 @@ body {
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  animation: cardEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
   position: relative;
 }
 
