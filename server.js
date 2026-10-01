@@ -31,7 +31,10 @@ const allowedStaticFiles = new Set([
   "/photo.js",
   "/ui-effects.js",
   "/firebase-auth.js",
-  "/favicon.ico"
+  "/favicon.ico",
+  "/favicon-16x16.png",
+  "/favicon-32x32.png",
+  "/apple-touch-icon.png"
 ]);
 
 app.use((request, response, next) => {
